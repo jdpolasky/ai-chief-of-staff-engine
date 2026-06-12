@@ -1,0 +1,23 @@
+{
+  "_comment": "Stop-hook output checks. Each rule is a regex tested against the agent's final assistant message. On a match the stop is blocked with the rule's message so the agent rewrites. Ships mostly disabled: turn on what your owner actually wants. Add your own by appending an entry. 'pattern' is a Python regex; keep it anchored and cheap.",
+  "rules": [
+    {
+      "name": "em_dash",
+      "pattern": "—",
+      "message": "Your final message contains an em-dash. This owner bans them. Rewrite using a period, comma, or 'and' instead, then stop.",
+      "enabled": true
+    },
+    {
+      "name": "unsourced_long_quote",
+      "pattern": "[\"“][^\"“”]{60,}[\"”]",
+      "message": "Your final message contains a long quoted passage (60+ characters). If this is a real quote, name its source inline. If it is a paraphrase, drop the quote marks. Then stop.",
+      "enabled": false
+    },
+    {
+      "name": "hedge_stack",
+      "pattern": "(?i)\\b(?:might|perhaps|possibly|maybe)\\b[^.!?\\n]*\\b(?:might|perhaps|possibly|maybe)\\b[^.!?\\n]*\\b(?:might|perhaps|possibly|maybe)\\b",
+      "message": "Your final message stacks three or more hedging words in one sentence (might/perhaps/possibly/maybe). Commit to a claim or name the specific uncertainty, then stop.",
+      "enabled": false
+    }
+  ]
+}

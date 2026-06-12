@@ -20,4 +20,4 @@ No invented names, dates, numbers, institutions, or biographical details, ever. 
 
 ---
 
-These rules assume the engine's mechanics back them up: rule 2 works because facts carry provenance and timestamps; rule 1 works best when the propose/commit split is enforced by tooling rather than goodwill. As later stages of this kit publish the enforcement layer (hooks and write gates), wire the rules into it; until then, prose and habit carry them.
+These rules assume the engine's mechanics back them up: rule 2 works because facts carry provenance and timestamps; rule 1 works best when the propose/commit split is enforced by tooling rather than goodwill. That enforcement layer now exists: the hooks in [`ENFORCEMENT.md`](ENFORCEMENT.md) mechanize the parts that can be mechanized (the propose/commit write gate, a runaway brake, and an output linter), so wire the rules into it rather than leaning on prose and habit alone.

@@ -161,6 +161,48 @@ Must from it. Delete the temporary state directory when done. If every read retu
 data, the loop is wired correctly and you can repeat the adaptation against your owner's
 vault.
 
+## Phase 6 — install the enforcement hooks (Stage 3)
+
+Once the loop is in place, install the three hooks that enforce the operating
+rules mechanically, so the rules hold whether you remember them or not. They live
+in `hooks/` as standard-library Python scripts with JSON config in
+`hooks/config/`. Full reference: [`docs/ENFORCEMENT.md`](docs/ENFORCEMENT.md).
+
+**Copy the hooks.** Put the `hooks/` folder where your runtime can reach it (for a
+Claude Code layout, the project root is fine, since the settings example below
+uses `${CLAUDE_PROJECT_DIR}`):
+
+```
+cp -r hooks  <your-project-root>/hooks
+```
+
+**Wire settings.json.** Add a `hooks` block in the exact official format. Copy the
+complete snippet from `docs/ENFORCEMENT.md` ("How to install"); it registers
+`protect_surfaces` on the `Edit|Write|NotebookEdit` matcher, `effort_governor` on
+`*`, and `output_lint` as a `Stop` hook. Point the `command` paths at wherever you
+put the `hooks/` folder. Restart the owner's session so the hooks load.
+
+**Adapt the protected surfaces to the owner's real files.** Edit
+`hooks/config/protected_surfaces.json`: replace the sample-vault globs with globs
+for the files the owner wants to commit themselves (their task list, their
+invoicing note, any front-door hub). Propose the list to the owner first, then
+write it on approval. Each entry is `{ "pattern": <glob>, "label": <short-name>,
+"note": <why> }`; the label names the one-time consent file, so keep it short and
+filename-safe. Leave the lint rules off except the ones the owner asks for.
+
+**Verify two ways.**
+
+1. Run the probe: `python -m cos regress` (it now includes `probe_hooks`, which
+   drives all three hooks through every branch). All probes must stay green.
+2. Try it live in a scratch session: attempt an edit to one of the owner's
+   protected files and confirm the hook blocks you with a propose-instead message.
+   Then have the owner create the named `.consent-<label>` file, retry, and confirm
+   the edit goes through exactly once and the consent file is consumed.
+
+If the block does not fire, the hook is almost certainly not wired into
+`settings.json` correctly or the session was not restarted; re-check the matcher
+and the command path before changing anything else.
+
 ## If something fails
 
 Report to your owner: the exact command, the verbatim output, and which phase you were in. The probe suite (`python -m cos regress`) is the arbiter of "is the engine broken or is my usage wrong": green probes plus a failing usage almost always means a format or env-var problem on your side.
