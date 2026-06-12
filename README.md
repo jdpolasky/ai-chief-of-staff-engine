@@ -60,6 +60,10 @@ These are the rules the parent system converged on after months of daily use and
 
 Four rules, written as prose your assistant adopts, live in [`docs/OPERATING-RULES.md`](docs/OPERATING-RULES.md): stop and check before acting, prove claims with a tool, invite the stress test, never make things up. They are the behavioral counterpart to the engine's mechanical guarantees.
 
+## Session loop
+
+Three commands give a work session a beginning, middle, and end: `/start` opens the day with a Must/Should/Could briefing built from stored facts, `/sync` checkpoints mid-session and saves durable facts, and `/wrap` closes the session, writes an episode record, and leaves a state note the next `/start` resumes from. They live in [`commands/`](commands/) as prose instruction files an AI agent reads, and they use the memory engine for everything they store. The engine is the deterministic half; the commands are the judgment half. See [`docs/SESSION-LOOP.md`](docs/SESSION-LOOP.md).
+
 ## Repository map
 
 ```
@@ -68,15 +72,20 @@ cos/                  the engine (python -m cos)
   memory/             schema, migrations, writers, loader, context retrieval
   braid/              write-contract validation + JSON Schema contracts
   subcommands/        the CLI: memory add/retrieve/search/stats/context/seed, regress
+commands/             session-loop commands your AI reads: start.md, sync.md, wrap.md
 probes/               the verification harness (self-contained probe scripts)
 sample-vault/         synthetic demo vault (fictional persona, zero real data)
-docs/                 operating rules
+docs/                 operating rules + the session-loop guide (SESSION-LOOP.md)
 AGENTS.md             instructions your AI reads to install and adapt the kit
 ```
 
 ## Roadmap
 
-This repository is Stage 1 of a staged release: the runnable memory core. Later stages re-author the surrounding machinery clean: session commands (start/sync/wrap), the incident logbook, harness hooks (including the propose/commit write gate and an effort governor), the self-tending rituals, and the capability registry pattern. Each lands as its own reviewed addition.
+This repository releases in stages, each re-authored clean and reviewed on its own.
+
+- **Stage 1, the runnable memory core (shipped):** the bitemporal fact store, write contracts, three-tier retrieval, the markdown loader, and the verification harness.
+- **Stage 2, the session loop (shipped, this stage):** the `/start`, `/sync`, and `/wrap` commands and their docs, built on top of the memory core.
+- **Later stages:** the incident logbook, harness hooks (including the propose/commit write gate and an effort governor), the self-tending rituals, and the capability registry pattern.
 
 ## Status
 
