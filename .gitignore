@@ -1,0 +1,24 @@
+# Python build artifacts (embed the local build path; never commit)
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Local virtual environments
+.venv/
+venv/
+env/
+
+# Runtime state: the database, jsonl backups, and logs are generated, not source
+_state/
+*.db
+*.db-journal
+*.jsonl
+*.log
+
+# Editor / OS noise
+.DS_Store
+.idea/
+.vscode/
