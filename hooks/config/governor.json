@@ -1,0 +1,6 @@
+{
+  "_comment": "The runaway brake. Counts tool calls per session (keyed by session_id from the hook input) and trips at thresholds. PreToolUse hooks see one call at a time; they do NOT see turn boundaries or consecutive failures, so this is a blunt per-session total, not a smart loop detector. See docs/ENFORCEMENT.md for what it can and cannot see.",
+  "max_calls_per_session": 200,
+  "warn_at": 120,
+  "block_once_at": 150
+}

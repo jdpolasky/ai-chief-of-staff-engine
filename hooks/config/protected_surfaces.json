@@ -1,0 +1,25 @@
+{
+  "_comment": "Surfaces the owner commits, not the agent. Each entry is a glob the agent may not Edit/Write/NotebookEdit without a one-time consent file. Paths are matched against the tool's file_path, both as given and relative to the project root, with forward slashes. Adapt these globs to your own protected files; these examples follow the sample vault (persona: Maya Okonkwo, a landscape architect).",
+  "surfaces": [
+    {
+      "pattern": "sample-vault/state/**",
+      "label": "session-state",
+      "note": "The last-session handoff note. /wrap writes it; the agent should not hand-edit it."
+    },
+    {
+      "pattern": "sample-vault/admin/Invoicing.md",
+      "label": "invoicing",
+      "note": "Money. The owner commits every change to invoicing themselves."
+    },
+    {
+      "pattern": "sample-vault/studio/Studio Hub.md",
+      "label": "studio-hub",
+      "note": "The studio front door. One front door per area; the owner owns its shape."
+    },
+    {
+      "pattern": "**/*.consent-*",
+      "label": "consent-file",
+      "note": "Consent files are owner-created. The agent must never write one itself."
+    }
+  ]
+}
