@@ -60,6 +60,10 @@ These are the rules the parent system converged on after months of daily use and
 
 Four rules, written as prose your assistant adopts, live in [`docs/OPERATING-RULES.md`](docs/OPERATING-RULES.md): stop and check before acting, prove claims with a tool, invite the stress test, never make things up. They are the behavioral counterpart to the engine's mechanical guarantees, and the [enforcement layer](docs/ENFORCEMENT.md) now backs the ones that can be mechanized.
 
+## Session loop
+
+Three commands give a work session a beginning, middle, and end: `/start` opens the day with a Must/Should/Could briefing built from stored facts, `/sync` checkpoints mid-session and saves durable facts, and `/wrap` closes the session, writes an episode record, and leaves a state note the next `/start` resumes from. They live in [`commands/`](commands/) as prose instruction files an AI agent reads, and they use the memory engine for everything they store. The engine is the deterministic half; the commands are the judgment half. See [`docs/SESSION-LOOP.md`](docs/SESSION-LOOP.md).
+
 ## Enforcement
 
 Rules decay when they live only as prose: a long session or a fresh context window quietly drops them. So the rules that must not break are moved out of the model's memory and into the harness around it. This stage ships three Claude Code hooks, off until you wire them in: `protect_surfaces` enforces the propose/commit split by blocking edits to files you marked as yours (with a one-time consent-file override), `effort_governor` is a runaway brake that trips at tool-call thresholds, and `output_lint` checks the assistant's final message against rules you turn on. Every hook is standard-library only and fails open by design (a bug in a hook allows the action rather than locking you out), and every branch is covered by `probe_hooks`. See [`docs/ENFORCEMENT.md`](docs/ENFORCEMENT.md).
@@ -83,10 +87,6 @@ One assistant bleeds behaviors across contexts: the coach starts executing, the 
 ## 12-week cycles
 
 Annual plans die because a year is too far to feel and too vague to act on. This stage adds the quarter tier: a 12-week cycle with two or three goals, each scored not on the results you hope for but on the weekly actions you control (lead measures, not lag measures). You score the actions once a week, and the cycle renders into the morning briefing through the session loop, so the plan you wrote three weeks ago greets you each morning without you remembering it exists. The pieces are a self-documenting template (`cycles/CYCLE-TEMPLATE.md`), a read-only renderer (`python -m cos cycle`), and a weekly-review ritual. A pause is a conscious move that costs nothing but honesty; a quietly abandoned cycle is amnesia. See [`docs/CYCLES.md`](docs/CYCLES.md).
-
-## Session loop
-
-Three commands give a work session a beginning, middle, and end: `/start` opens the day with a Must/Should/Could briefing built from stored facts, `/sync` checkpoints mid-session and saves durable facts, and `/wrap` closes the session, writes an episode record, and leaves a state note the next `/start` resumes from. They live in [`commands/`](commands/) as prose instruction files an AI agent reads, and they use the memory engine for everything they store. The engine is the deterministic half; the commands are the judgment half. See [`docs/SESSION-LOOP.md`](docs/SESSION-LOOP.md).
 
 ## Repository map
 
