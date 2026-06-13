@@ -338,6 +338,46 @@ its retest date flagged `[RETEST]`. Then run `python -m cos regress` and confirm
 so the only way it changes is you proposing and the owner approving; it never edits
 itself.
 
+## Phase 10 — install the mode contracts (the cabinet pattern)
+
+Once the loop and the hooks are in, install the mode contracts so the assistant holds
+explicit limits per context instead of bleeding behaviors across them. They live in
+`modes/` as one-page markdown contracts, with the `/mode` command in `commands/` telling
+you how to enter, hold, and exit one. Full reference: [`docs/MODES.md`](docs/MODES.md).
+
+**Copy the files.** Put `modes/` where your runtime can reach it, and copy
+`commands/mode.md` into the same place as the other command files:
+
+```
+cp -r modes  <your-project-root>/modes
+cp commands/mode.md  <vault>/.claude/commands/
+```
+
+**Interview the owner for the modes their life actually needs.** Do not ship all three
+shipped contracts unread. Ask the owner where their assistant's behavior actually bleeds:
+where it executes when they wanted thinking, edits when they wanted a draft, talks when it
+should stay quiet. Suggest starting with two: a working default (daily-ops) and one more
+the owner clearly needs. More modes than the owner can hold in their head defeats the
+purpose.
+
+**Draft each contract from the template.** Copy `CONTRACT-TEMPLATE.md` and fill it for the
+owner's real world: their projects, their files, their tools, their handoffs. The shipped
+daily-ops, planning-coach, and quiet-hours contracts are written around the sample vault,
+so treat them as worked examples to adapt, not files to deploy verbatim.
+
+**Get explicit owner approval on each Must-never list before activating.** The Must-never
+list is the load-bearing part of a contract, so it is the part the owner signs off on by
+name. Show the owner each contract's Must-never lines, get a clear yes, then record the
+approval date in the frontmatter and set `status: active`. An unapproved contract stays
+`status: draft` and is not held.
+
+**Verify by entering and exiting a mode in a scratch session.** Declare a mode, confirm
+the assistant reads the contract and loads only what Entry names, then ask it to do
+something that mode must never do and confirm it names the conflict and offers the right
+mode instead of silently complying. Then exit and confirm it returns to daily-ops cleanly.
+If the assistant complies with the out-of-scope request, the contract is not being held;
+reread it at entry and shorten it if it is too long to hold.
+
 ## If something fails
 
 Report to your owner: the exact command, the verbatim output, and which phase you were in. The probe suite (`python -m cos regress`) is the arbiter of "is the engine broken or is my usage wrong": green probes plus a failing usage almost always means a format or env-var problem on your side.

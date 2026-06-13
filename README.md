@@ -76,6 +76,10 @@ Untended memory rots quietly: the index drifts, two rules start to contradict, d
 
 An assistant with many tools keeps re-learning the same routing lesson: which tool works for which job, and which approaches are dead ends. Each re-discovery costs a failed attempt. The capability registry (`capability/registry.json`) is a small owner-curated file the assistant reads *before* it picks a tool for a class of task, recording the best route, an ordered fallback ladder, and dead ends. Each dead end carries a retest date, because a route that failed once may work later once a tool improves, so a dead end is a fact with an expiry, not a permanent verdict. The lookup is read-only (`python -m cos capability <task-class>`, or `--list`); the assistant proposes registry changes after real failures and the owner commits them, so it grows only from observed failure. See [`docs/CAPABILITY.md`](docs/CAPABILITY.md).
 
+## Mode contracts
+
+One assistant bleeds behaviors across contexts: the coach starts executing, the executor starts editorializing, a reflective conversation turns into a task list nobody asked for. Mode contracts fix this by giving the assistant one identity but several named modes, each governed by a short written contract (what the mode is for, what it may do, what it must never do, how it opens and closes, the tone it holds). This stage ships three contracts in [`modes/`](modes/) (daily-ops, planning-coach, quiet-hours), a blank template to write your own, and the `/mode` command that tells the assistant how to enter, hold, and exit one. The Must-never lines that would do real damage if forgotten escalate to the enforcement hooks. See [`docs/MODES.md`](docs/MODES.md).
+
 ## Session loop
 
 Three commands give a work session a beginning, middle, and end: `/start` opens the day with a Must/Should/Could briefing built from stored facts, `/sync` checkpoints mid-session and saves durable facts, and `/wrap` closes the session, writes an episode record, and leaves a state note the next `/start` resumes from. They live in [`commands/`](commands/) as prose instruction files an AI agent reads, and they use the memory engine for everything they store. The engine is the deterministic half; the commands are the judgment half. See [`docs/SESSION-LOOP.md`](docs/SESSION-LOOP.md).
@@ -89,14 +93,15 @@ cos/                  the engine (python -m cos)
   braid/              write-contract validation + JSON Schema contracts
   lint.py             read-only structural checks over the memory corpus
   subcommands/        the CLI: memory add/retrieve/search/stats/context/seed, regress, lint, capability
-commands/             session-loop + ritual commands your AI reads: start.md, sync.md, wrap.md, incident.md, incident-review.md, dream.md, route.md
+commands/             session-loop + ritual commands your AI reads: start.md, sync.md, wrap.md, incident.md, incident-review.md, dream.md, route.md, mode.md
+modes/                mode contracts: CONTRACT-TEMPLATE.md + daily-ops, planning-coach, quiet-hours
 hooks/                enforcement hooks (stdlib-only) + their JSON config
   config/             protected_surfaces.json, governor.json, lint_rules.json
 incidents/            the incident logbook: one record per failure, a lean INDEX.md, the worked example
 capability/           the capability registry: registry.json (owner-curated routing memory)
 probes/               the verification harness (self-contained probe scripts)
 sample-vault/         synthetic demo vault (fictional persona, zero real data)
-docs/                 operating rules + a guide per stage (session loop, enforcement, logbook, self-tending, capability registry)
+docs/                 operating rules + a guide per stage (session loop, enforcement, logbook, self-tending, capability registry, modes)
 AGENTS.md             instructions your AI reads to install and adapt the kit
 ```
 
