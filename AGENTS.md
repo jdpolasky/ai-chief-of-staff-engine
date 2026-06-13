@@ -287,6 +287,57 @@ one hard number, the three-proposal cap, is a deliberate fixed ceiling, not a
 knob. There is nothing here to configure per owner; say so plainly rather than
 inventing config. The only per-owner adaptation is the schedule above.
 
+## Phase 9 — install the capability registry (Stage 6)
+
+Once the loop, the hooks, the logbook, and the self-tending rituals are in place,
+install the capability registry so you stop re-discovering the same routing lessons
+every session. It is a small owner-curated file you consult before picking a tool for a
+class of task: the best route, an ordered fallback ladder, and dead ends that carry
+retest dates. Full reference: [`docs/CAPABILITY.md`](docs/CAPABILITY.md).
+
+**Copy the registry.** Put the `capability/` folder where the CLI can reach it (the repo
+root is fine; the lookup resolves `capability/registry.json` at the repo root, or honors
+`COS_CAPABILITY_REGISTRY` if your owner relocates it):
+
+```
+cp -r capability  <your-project-root>/capability
+```
+
+The shipped `registry.json` seeds five generic task classes (vault file operations,
+public web reads, authenticated web work, long-document generation, structured data
+pulls) with neutral descriptions and no tool brand names. Also copy `commands/route.md`
+into your commands directory so you have the instruction to consult the registry before
+starting a matching task.
+
+**Adapt the seeded classes to the owner's real tool landscape.** The seeds are a shape,
+not a prescription. Interview the owner briefly, no more than three questions, then
+propose the edits and write them on approval:
+
+1. **Vault routing:** what is the owner's notes app, and does it expose an API
+   integration you should prefer over editing files on disk?
+2. **Authenticated work:** which logged-in browser or session do you drive for their
+   admin surfaces, and which tools are off-limits there?
+3. **Known dead ends:** is there a route the owner already knows does not work for them,
+   worth seeding as a dead end with a retest date so you never burn an attempt on it?
+
+Translate the answers into the `best_route`, `ladder`, and `dead_ends` fields so the
+routes name the owner's actual tools. Keep the propose/commit split: you propose the
+registry content, the owner commits it. Grow it only from observed failure thereafter.
+
+**Verify.** Run the lookup two ways and confirm the output reads true:
+
+```
+python -m cos capability --list
+python -m cos capability vault-file-operations
+```
+
+The `--list` call should print the task classes; the lookup should print the best route,
+the ladder, and any dead ends, with an unexpired dead end flagged `[avoid]` and one past
+its retest date flagged `[RETEST]`. Then run `python -m cos regress` and confirm
+`probe_capability` is green along with the rest of the suite. The registry is read-only,
+so the only way it changes is you proposing and the owner approving; it never edits
+itself.
+
 ## If something fails
 
 Report to your owner: the exact command, the verbatim output, and which phase you were in. The probe suite (`python -m cos regress`) is the arbiter of "is the engine broken or is my usage wrong": green probes plus a failing usage almost always means a format or env-var problem on your side.

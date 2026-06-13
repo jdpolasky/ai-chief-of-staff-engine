@@ -72,6 +72,10 @@ A working system improves by logging its failures as data, not by relitigating t
 
 Untended memory rots quietly: the index drifts, two rules start to contradict, dead notes accumulate, and none of it is loud. The fix is a ritual, not discipline. Two self-tending rituals run on a schedule: a **corpus lint** (`python -m cos lint`) runs five deterministic, read-only checks over the memory corpus (index orphans, malformed frontmatter, stale done-notes, duplicate names, broken cross-links) and stays silent on a clean corpus, loud on findings; and a weekly **dream run** (`/dream`) re-reads recent session residue and proposes at most three durable patterns ("you keep doing X", "these two rules contradict", "this memory looks dead"), each as accept or reject, so the corpus changes only through your yes. This is design principle ten made real. See [`docs/SELF-TENDING.md`](docs/SELF-TENDING.md).
 
+## Capability registry
+
+An assistant with many tools keeps re-learning the same routing lesson: which tool works for which job, and which approaches are dead ends. Each re-discovery costs a failed attempt. The capability registry (`capability/registry.json`) is a small owner-curated file the assistant reads *before* it picks a tool for a class of task, recording the best route, an ordered fallback ladder, and dead ends. Each dead end carries a retest date, because a route that failed once may work later once a tool improves, so a dead end is a fact with an expiry, not a permanent verdict. The lookup is read-only (`python -m cos capability <task-class>`, or `--list`); the assistant proposes registry changes after real failures and the owner commits them, so it grows only from observed failure. See [`docs/CAPABILITY.md`](docs/CAPABILITY.md).
+
 ## Session loop
 
 Three commands give a work session a beginning, middle, and end: `/start` opens the day with a Must/Should/Could briefing built from stored facts, `/sync` checkpoints mid-session and saves durable facts, and `/wrap` closes the session, writes an episode record, and leaves a state note the next `/start` resumes from. They live in [`commands/`](commands/) as prose instruction files an AI agent reads, and they use the memory engine for everything they store. The engine is the deterministic half; the commands are the judgment half. See [`docs/SESSION-LOOP.md`](docs/SESSION-LOOP.md).
@@ -84,14 +88,15 @@ cos/                  the engine (python -m cos)
   memory/             schema, migrations, writers, loader, context retrieval
   braid/              write-contract validation + JSON Schema contracts
   lint.py             read-only structural checks over the memory corpus
-  subcommands/        the CLI: memory add/retrieve/search/stats/context/seed, regress, lint
-commands/             session-loop + ritual commands your AI reads: start.md, sync.md, wrap.md, incident.md, incident-review.md, dream.md
+  subcommands/        the CLI: memory add/retrieve/search/stats/context/seed, regress, lint, capability
+commands/             session-loop + ritual commands your AI reads: start.md, sync.md, wrap.md, incident.md, incident-review.md, dream.md, route.md
 hooks/                enforcement hooks (stdlib-only) + their JSON config
   config/             protected_surfaces.json, governor.json, lint_rules.json
 incidents/            the incident logbook: one record per failure, a lean INDEX.md, the worked example
+capability/           the capability registry: registry.json (owner-curated routing memory)
 probes/               the verification harness (self-contained probe scripts)
 sample-vault/         synthetic demo vault (fictional persona, zero real data)
-docs/                 operating rules, session-loop guide, enforcement guide, logbook guide, self-tending guide
+docs/                 operating rules + a guide per stage (session loop, enforcement, logbook, self-tending, capability registry)
 AGENTS.md             instructions your AI reads to install and adapt the kit
 ```
 
@@ -104,8 +109,8 @@ This repository releases in stages, each re-authored clean and reviewed on its o
 - **Stage 3, the enforcement bundle (shipped):** three Claude Code hooks that enforce the operating rules mechanically (the propose/commit write gate, the effort governor, and an output linter), their JSON config, and a probe that covers every branch. See [`docs/ENFORCEMENT.md`](docs/ENFORCEMENT.md).
 - **Stage 4, the incident logbook (shipped):** a failure-capture system that logs failures as data and mines them for repeats. Two commands (`/incident` to capture, `/incident-review` to mine and graduate patterns into rules), the incidents folder, and the doc. Markdown and prose only, no new code. See [`docs/LOGBOOK.md`](docs/LOGBOOK.md).
 - **Stage 5, the self-tending rituals (shipped):** the corpus lint (`python -m cos lint`, five read-only checks), the weekly dream run (`/dream`), a probe covering every check, and the doc. See [`docs/SELF-TENDING.md`](docs/SELF-TENDING.md).
-- **Later stages:** the capability registry pattern.
+- **Stage 6, the capability registry (shipped):** an owner-curated routing file the assistant consults before picking a tool, recording the best route, the fallback ladder, and dead ends that carry retest dates, plus the `route` command and a probe over every path. See [`docs/CAPABILITY.md`](docs/CAPABILITY.md).
 
 ## Status
 
-Every probe in `probes/` passes (`python -m cos regress`: 9 passed, 0 failed). The sample vault seeds end to end and re-seeds idempotently. The codebase contains zero personal data by construction: it was re-authored clean-room, allow-list only, and the release gate includes an automated leak scan.
+Every probe in `probes/` passes (`python -m cos regress` reports the full count with zero failures). The sample vault seeds end to end and re-seeds idempotently. The codebase contains zero personal data by construction: it was re-authored clean-room, allow-list only, and the release gate includes an automated leak scan.

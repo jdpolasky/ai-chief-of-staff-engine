@@ -1,0 +1,90 @@
+{
+  "_about": "Capability registry: owner-curated routing memory. The agent consults this BEFORE picking a tool for a task class, so a lesson learned once (the route that works, the ladder of fallbacks, the dead ends) is not re-discovered at the cost of a failed attempt every session. Owner-curated: the agent proposes changes after real failures; the owner commits them. See docs/CAPABILITY.md.",
+  "task_classes": [
+    {
+      "task_class": "vault-file-operations",
+      "description": "Reading or writing files in the owner's notes vault: edits, appends, new notes, frontmatter changes.",
+      "best_route": "The notes app's API integration, so writes go through the app and the live editor sees them immediately.",
+      "ladder": [
+        "The notes app's API integration (best route).",
+        "A direct file edit on disk when the app is closed or its integration is unavailable, then let the app re-index on next open."
+      ],
+      "dead_ends": [
+        {
+          "route": "Editing a note on disk while the notes app holds a write lock on it.",
+          "reason": "The app can overwrite the on-disk change with its in-memory copy on save, silently losing the edit.",
+          "retest_after": "2026-12-01"
+        }
+      ],
+      "notes": "Prefer the integration for anything the owner may have open. Disk edits are for closed-app batch work; re-seed or re-index after."
+    },
+    {
+      "task_class": "web-public-read",
+      "description": "Fetching a public web page or document that needs no login: docs, articles, public profiles.",
+      "best_route": "A plain HTTP fetch of the page, which is fastest and cheapest when the content is in the initial HTML.",
+      "ladder": [
+        "A plain HTTP fetch (best route).",
+        "A headless browser that renders the page when the content is loaded by client-side scripts and the plain fetch comes back empty."
+      ],
+      "dead_ends": [
+        {
+          "route": "Retrying the same plain HTTP fetch against a site that returns an empty shell and loads its body with client-side scripts.",
+          "reason": "The content never arrives in the raw HTML, so repeated fetches return the same empty shell. Escalate to a renderer instead of retrying.",
+          "retest_after": "2026-09-01"
+        }
+      ],
+      "notes": "Decide by what comes back: if the fetch returns the real text, stop there; if it returns an empty shell, the page is script-rendered and the renderer is the next rung."
+    },
+    {
+      "task_class": "authenticated-web-work",
+      "description": "Acting on a site that requires the owner's login: an admin console, a dashboard, a posting surface.",
+      "best_route": "A browser driven inside the owner's own logged-in session, so the work runs against their real authenticated profile.",
+      "ladder": [
+        "A browser in the owner's logged-in session (best route).",
+        "If the route hits a login wall, stop and ask the owner to sign in once; do not switch tools to clear a login."
+      ],
+      "dead_ends": [
+        {
+          "route": "Falling back to a session-less headless browser to do work behind a login.",
+          "reason": "A session-less browser has no access to the owner's credentials, so it cannot pass the login wall. Switching tools never clears an auth gate; only the owner signing in does.",
+          "retest_after": "2026-10-01"
+        }
+      ],
+      "notes": "Two failure shapes here are different. A login wall is a human-action gate: stop and name the one thing the owner must do. A concrete tool error (element not found, timeout) is a tool failure: adjust once, then advance the ladder."
+    },
+    {
+      "task_class": "long-document-generation",
+      "description": "Producing a long structured deliverable: a multi-section report, a brief, a formatted export.",
+      "best_route": "Draft the document in sections against an outline the owner approved, then assemble, so each section is reviewable and the whole stays coherent.",
+      "ladder": [
+        "Sectioned drafting against an approved outline (best route).",
+        "A single-pass draft only for short pieces where an outline would be overhead."
+      ],
+      "dead_ends": [
+        {
+          "route": "Generating a long multi-section document in one pass with no outline.",
+          "reason": "One-pass long-form drifts in structure and tone partway through and is expensive to repair after the fact. Outline first, then fill.",
+          "retest_after": "2026-08-01"
+        }
+      ],
+      "notes": "Length is the trigger. Short notes go one-pass; anything with sections gets an outline the owner signs off on before the prose is written."
+    },
+    {
+      "task_class": "structured-data-pull",
+      "description": "Getting structured records from a source: an export, an API, a dataset behind a query.",
+      "best_route": "The source's own typed API or export, which returns clean records and is stable across runs.",
+      "ladder": [
+        "The source's typed API or export (best route).",
+        "Scraping the rendered page only when the source exposes no API and the owner accepts the fragility."
+      ],
+      "dead_ends": [
+        {
+          "route": "Scraping a rendered page for data the source also offers through a typed API.",
+          "reason": "Scraped layout breaks whenever the page changes and yields dirtier records than the API. Use the API when one exists; scrape only as a last resort.",
+          "retest_after": "2026-11-01"
+        }
+      ],
+      "notes": "Ask first whether the source has an API or export. Scraping is the fallback for sources that do not, not the default."
+    }
+  ]
+}
