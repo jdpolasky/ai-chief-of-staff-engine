@@ -80,6 +80,10 @@ An assistant with many tools keeps re-learning the same routing lesson: which to
 
 One assistant bleeds behaviors across contexts: the coach starts executing, the executor starts editorializing, a reflective conversation turns into a task list nobody asked for. Mode contracts fix this by giving the assistant one identity but several named modes, each governed by a short written contract (what the mode is for, what it may do, what it must never do, how it opens and closes, the tone it holds). This stage ships three contracts in [`modes/`](modes/) (daily-ops, planning-coach, quiet-hours), a blank template to write your own, and the `/mode` command that tells the assistant how to enter, hold, and exit one. The Must-never lines that would do real damage if forgotten escalate to the enforcement hooks. See [`docs/MODES.md`](docs/MODES.md).
 
+## 12-week cycles
+
+Annual plans die because a year is too far to feel and too vague to act on. This stage adds the quarter tier: a 12-week cycle with two or three goals, each scored not on the results you hope for but on the weekly actions you control (lead measures, not lag measures). You score the actions once a week, and the cycle renders into the morning briefing through the session loop, so the plan you wrote three weeks ago greets you each morning without you remembering it exists. The pieces are a self-documenting template (`cycles/CYCLE-TEMPLATE.md`), a read-only renderer (`python -m cos cycle`), and a weekly-review ritual. A pause is a conscious move that costs nothing but honesty; a quietly abandoned cycle is amnesia. See [`docs/CYCLES.md`](docs/CYCLES.md).
+
 ## Session loop
 
 Three commands give a work session a beginning, middle, and end: `/start` opens the day with a Must/Should/Could briefing built from stored facts, `/sync` checkpoints mid-session and saves durable facts, and `/wrap` closes the session, writes an episode record, and leaves a state note the next `/start` resumes from. They live in [`commands/`](commands/) as prose instruction files an AI agent reads, and they use the memory engine for everything they store. The engine is the deterministic half; the commands are the judgment half. See [`docs/SESSION-LOOP.md`](docs/SESSION-LOOP.md).
@@ -88,20 +92,21 @@ Three commands give a work session a beginning, middle, and end: `/start` opens 
 
 ```
 cos/                  the engine (python -m cos)
-  config.py           env-var seam: COS_VAULT, COS_STATE_DIR, COS_DB, COS_MEMORY_DIR
+  config.py           env-var seam: COS_VAULT, COS_STATE_DIR, COS_DB, COS_MEMORY_DIR, COS_CYCLES_DIR
   memory/             schema, migrations, writers, loader, context retrieval
   braid/              write-contract validation + JSON Schema contracts
   lint.py             read-only structural checks over the memory corpus
-  subcommands/        the CLI: memory add/retrieve/search/stats/context/seed, regress, lint, capability
-commands/             session-loop + ritual commands your AI reads: start.md, sync.md, wrap.md, incident.md, incident-review.md, dream.md, route.md, mode.md
+  subcommands/        the CLI: memory add/retrieve/search/stats/context/seed, regress, lint, capability, cycle
+commands/             session-loop + ritual commands your AI reads: start.md, sync.md, wrap.md, incident.md, incident-review.md, dream.md, route.md, mode.md, cycle-review.md
 modes/                mode contracts: CONTRACT-TEMPLATE.md + daily-ops, planning-coach, quiet-hours
+cycles/               12-week cycle plans: CYCLE-TEMPLATE.md + a filled example
 hooks/                enforcement hooks (stdlib-only) + their JSON config
   config/             protected_surfaces.json, governor.json, lint_rules.json
 incidents/            the incident logbook: one record per failure, a lean INDEX.md, the worked example
 capability/           the capability registry: registry.json (owner-curated routing memory)
 probes/               the verification harness (self-contained probe scripts)
 sample-vault/         synthetic demo vault (fictional persona, zero real data)
-docs/                 operating rules + a guide per stage (session loop, enforcement, logbook, self-tending, capability registry, modes)
+docs/                 operating rules + a guide per stage (session loop, enforcement, logbook, self-tending, capability registry, modes, cycles)
 AGENTS.md             instructions your AI reads to install and adapt the kit
 ```
 

@@ -7,6 +7,7 @@ your own notes vault:
     COS_STATE_DIR   where the database + backups live     (default: <vault>/_state)
     COS_DB          the SQLite database file              (default: <state>/memory.db)
     COS_MEMORY_DIR  folder of memory .md files to seed    (default: <vault>/memory)
+    COS_CYCLES_DIR  folder of 12-week cycle plan files     (default: <vault>/cycles)
 """
 
 from __future__ import annotations
@@ -24,5 +25,6 @@ VAULT = _env_path("COS_VAULT", Path.home() / "cos-vault")
 STATE_DIR = _env_path("COS_STATE_DIR", VAULT / "_state")
 DEFAULT_DB_PATH = _env_path("COS_DB", STATE_DIR / "memory.db")
 MEMORY_DIR = _env_path("COS_MEMORY_DIR", VAULT / "memory")
+CYCLES_DIR = _env_path("COS_CYCLES_DIR", VAULT / "cycles")
 
-__all__ = ["VAULT", "STATE_DIR", "DEFAULT_DB_PATH", "MEMORY_DIR"]
+__all__ = ["VAULT", "STATE_DIR", "DEFAULT_DB_PATH", "MEMORY_DIR", "CYCLES_DIR"]

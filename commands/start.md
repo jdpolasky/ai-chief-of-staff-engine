@@ -69,6 +69,15 @@ python -m cos memory search "feedback" --kind fact
 Feedback facts carry no subject, so they come back through search rather than
 `retrieve --subject`. Read them; they are how the owner has corrected you before.
 
+<!-- Stage 8: 12-week cycle scoreboard. Keep this block self-contained. -->
+### Step 1b: pull the active 12-week cycle
+
+After the context pulls above, run `python -m cos cycle` and render its output as
+a short scoreboard block in the briefing: which cycle, week N of 12, days left,
+lead-measure totals, and last week's score. If it reports no active cycle, skip
+the block silently. The cycle is part of the briefing, not separate from it. See
+[`../docs/CYCLES.md`](../docs/CYCLES.md).
+
 ## Step 2: read the owner's own files
 
 The engine holds durable facts. The owner's live, day-to-day intentions live in
