@@ -203,6 +203,46 @@ If the block does not fire, the hook is almost certainly not wired into
 `settings.json` correctly or the session was not restarted; re-check the matcher
 and the command path before changing anything else.
 
+## Phase 7 — install the incident logbook (Stage 4)
+
+Once enforcement is in place, install the logbook: the failure-capture loop that
+turns failures into data, mines the data for repeats, and graduates the durable
+repeats into feedback rules the engine seeds. It is markdown and prose only, no new
+Python and no new probes. Full reference: [`docs/LOGBOOK.md`](docs/LOGBOOK.md).
+
+**Copy the incidents folder.** The owner copies the `incidents/` folder to wherever
+they want the logbook to live (alongside their vault is fine). If they would rather
+start with an empty folder, create a fresh `incidents/` with just `README.md` and an
+`INDEX.md` whose only content is the header and the lean-index note; either way the
+folder needs `INDEX.md` to exist so the capture command has something to append to.
+
+**Adapt the example record out.** The kit ships one worked record,
+`2026-05-28-seedling-order-rederived.md`, for the fictional Maya persona, plus its
+line in `INDEX.md`. It stays in the kit as the format example. Do NOT carry it into
+the owner's live folder: when you set up their `incidents/`, leave the Maya record and
+its index line behind. The owner's logbook starts empty and fills with their own real
+failures.
+
+**Install the two commands.** Copy `commands/incident.md` and
+`commands/incident-review.md` into the owner's commands directory, the same place the
+session-loop commands went:
+
+```
+cp commands/incident.md commands/incident-review.md  <vault>/.claude/commands/
+```
+
+If the owner keeps their incidents folder somewhere other than `incidents/`, edit the
+path in both command files to match, and propose the edit before making it.
+
+**Verify with a dry capture in a scratch session.** Prove the loop end to end without
+touching anything real. In a scratch session, run `/incident` on a small invented
+failure: confirm it writes a `YYYY-MM-DD-<slug>.md` record with valid frontmatter
+(`date`, `actor`, `class` from the six-class taxonomy, `status: logged`) and the four
+body sections, and confirm it appends exactly one line to `INDEX.md`. Then delete the
+scratch record and its index line. If the record writes clean and the index stays one
+line per record, the capture path works; `/incident-review` reuses the same files, so a
+clean capture is the install proof.
+
 ## If something fails
 
 Report to your owner: the exact command, the verbatim output, and which phase you were in. The probe suite (`python -m cos regress`) is the arbiter of "is the engine broken or is my usage wrong": green probes plus a failing usage almost always means a format or env-var problem on your side.

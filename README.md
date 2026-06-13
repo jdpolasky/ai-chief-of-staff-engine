@@ -64,6 +64,10 @@ Four rules, written as prose your assistant adopts, live in [`docs/OPERATING-RUL
 
 Rules decay when they live only as prose: a long session or a fresh context window quietly drops them. So the rules that must not break are moved out of the model's memory and into the harness around it. This stage ships three Claude Code hooks, off until you wire them in: `protect_surfaces` enforces the propose/commit split by blocking edits to files you marked as yours (with a one-time consent-file override), `effort_governor` is a runaway brake that trips at tool-call thresholds, and `output_lint` checks the assistant's final message against rules you turn on. Every hook is standard-library only and fails open by design (a bug in a hook allows the action rather than locking you out), and every branch is covered by `probe_hooks`. See [`docs/ENFORCEMENT.md`](docs/ENFORCEMENT.md).
 
+## Incident logbook
+
+A working system improves by logging its failures as data, not by relitigating them as arguments. This stage adds a failure-capture loop: `/incident` writes a classified record with no ceremony the moment something breaks, and `/incident-review`, run every few weeks, mines the records for repeats and proposes feedback rules for the patterns that recur. On your approval a rule graduates into the memory corpus the engine seeds, and a rule that keeps failing escalates to an enforcement hook. It is markdown and prose only, and it makes the system self-tending: corrections grow only from things that actually broke. See [`docs/LOGBOOK.md`](docs/LOGBOOK.md).
+
 ## Session loop
 
 Three commands give a work session a beginning, middle, and end: `/start` opens the day with a Must/Should/Could briefing built from stored facts, `/sync` checkpoints mid-session and saves durable facts, and `/wrap` closes the session, writes an episode record, and leaves a state note the next `/start` resumes from. They live in [`commands/`](commands/) as prose instruction files an AI agent reads, and they use the memory engine for everything they store. The engine is the deterministic half; the commands are the judgment half. See [`docs/SESSION-LOOP.md`](docs/SESSION-LOOP.md).
@@ -76,12 +80,13 @@ cos/                  the engine (python -m cos)
   memory/             schema, migrations, writers, loader, context retrieval
   braid/              write-contract validation + JSON Schema contracts
   subcommands/        the CLI: memory add/retrieve/search/stats/context/seed, regress
-commands/             session-loop commands your AI reads: start.md, sync.md, wrap.md
+commands/             session-loop + logbook commands your AI reads: start.md, sync.md, wrap.md, incident.md, incident-review.md
 hooks/                enforcement hooks (stdlib-only) + their JSON config
   config/             protected_surfaces.json, governor.json, lint_rules.json
+incidents/            the incident logbook: one record per failure, a lean INDEX.md, the worked example
 probes/               the verification harness (self-contained probe scripts)
 sample-vault/         synthetic demo vault (fictional persona, zero real data)
-docs/                 operating rules, session-loop guide, enforcement guide
+docs/                 operating rules, session-loop guide, enforcement guide, logbook guide
 AGENTS.md             instructions your AI reads to install and adapt the kit
 ```
 
@@ -91,8 +96,9 @@ This repository releases in stages, each re-authored clean and reviewed on its o
 
 - **Stage 1, the runnable memory core (shipped):** the bitemporal fact store, write contracts, three-tier retrieval, the markdown loader, and the verification harness.
 - **Stage 2, the session loop (shipped):** the `/start`, `/sync`, and `/wrap` commands and their docs, built on top of the memory core.
-- **Stage 3, the enforcement bundle (shipped, this stage):** three Claude Code hooks that enforce the operating rules mechanically (the propose/commit write gate, the effort governor, and an output linter), their JSON config, and a probe that covers every branch. See [`docs/ENFORCEMENT.md`](docs/ENFORCEMENT.md).
-- **Later stages:** the incident logbook, the self-tending rituals, and the capability registry pattern.
+- **Stage 3, the enforcement bundle (shipped):** three Claude Code hooks that enforce the operating rules mechanically (the propose/commit write gate, the effort governor, and an output linter), their JSON config, and a probe that covers every branch. See [`docs/ENFORCEMENT.md`](docs/ENFORCEMENT.md).
+- **Stage 4, the incident logbook (shipped, this stage):** a failure-capture system that logs failures as data and mines them for repeats. Two commands (`/incident` to capture, `/incident-review` to mine and graduate patterns into rules), the incidents folder, and the doc. Markdown and prose only, no new code. See [`docs/LOGBOOK.md`](docs/LOGBOOK.md).
+- **Later stages:** the self-tending rituals and the capability registry pattern.
 
 ## Status
 
