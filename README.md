@@ -64,6 +64,10 @@ Four rules, written as prose your assistant adopts, live in [`docs/OPERATING-RUL
 
 Rules decay when they live only as prose: a long session or a fresh context window quietly drops them. So the rules that must not break are moved out of the model's memory and into the harness around it. This stage ships three Claude Code hooks, off until you wire them in: `protect_surfaces` enforces the propose/commit split by blocking edits to files you marked as yours (with a one-time consent-file override), `effort_governor` is a runaway brake that trips at tool-call thresholds, and `output_lint` checks the assistant's final message against rules you turn on. Every hook is standard-library only and fails open by design (a bug in a hook allows the action rather than locking you out), and every branch is covered by `probe_hooks`. See [`docs/ENFORCEMENT.md`](docs/ENFORCEMENT.md).
 
+## 12-week cycles
+
+Annual plans die because a year is too far to feel and too vague to act on. This stage adds the quarter tier: a 12-week cycle with two or three goals, each scored not on the results you hope for but on the weekly actions you control (lead measures, not lag measures). You score the actions once a week, and the cycle renders into the morning briefing through the session loop, so the plan you wrote three weeks ago greets you each morning without you remembering it exists. The pieces are a self-documenting template (`cycles/CYCLE-TEMPLATE.md`), a read-only renderer (`python -m cos cycle`), and a weekly-review ritual. A pause is a conscious move that costs nothing but honesty; a quietly abandoned cycle is amnesia. See [`docs/CYCLES.md`](docs/CYCLES.md).
+
 ## Session loop
 
 Three commands give a work session a beginning, middle, and end: `/start` opens the day with a Must/Should/Could briefing built from stored facts, `/sync` checkpoints mid-session and saves durable facts, and `/wrap` closes the session, writes an episode record, and leaves a state note the next `/start` resumes from. They live in [`commands/`](commands/) as prose instruction files an AI agent reads, and they use the memory engine for everything they store. The engine is the deterministic half; the commands are the judgment half. See [`docs/SESSION-LOOP.md`](docs/SESSION-LOOP.md).
@@ -76,12 +80,14 @@ cos/                  the engine (python -m cos)
   memory/             schema, migrations, writers, loader, context retrieval
   braid/              write-contract validation + JSON Schema contracts
   subcommands/        the CLI: memory add/retrieve/search/stats/context/seed, regress
-commands/             session-loop commands your AI reads: start.md, sync.md, wrap.md
+  subcommands/        the CLI: ... cycle (render the active 12-week cycle)
+commands/             session-loop commands your AI reads: start.md, sync.md, wrap.md, cycle-review.md
+cycles/               12-week cycle plans: CYCLE-TEMPLATE.md + a filled example
 hooks/                enforcement hooks (stdlib-only) + their JSON config
   config/             protected_surfaces.json, governor.json, lint_rules.json
 probes/               the verification harness (self-contained probe scripts)
 sample-vault/         synthetic demo vault (fictional persona, zero real data)
-docs/                 operating rules, session-loop guide, enforcement guide
+docs/                 operating rules, session-loop guide, enforcement guide, cycles guide
 AGENTS.md             instructions your AI reads to install and adapt the kit
 ```
 
@@ -92,7 +98,8 @@ This repository releases in stages, each re-authored clean and reviewed on its o
 - **Stage 1, the runnable memory core (shipped):** the bitemporal fact store, write contracts, three-tier retrieval, the markdown loader, and the verification harness.
 - **Stage 2, the session loop (shipped):** the `/start`, `/sync`, and `/wrap` commands and their docs, built on top of the memory core.
 - **Stage 3, the enforcement bundle (shipped, this stage):** three Claude Code hooks that enforce the operating rules mechanically (the propose/commit write gate, the effort governor, and an output linter), their JSON config, and a probe that covers every branch. See [`docs/ENFORCEMENT.md`](docs/ENFORCEMENT.md).
-- **Later stages:** the incident logbook, the self-tending rituals, and the capability registry pattern.
+- **Later stages:** the incident logbook, the self-tending rituals, the capability registry pattern, and the mode contracts.
+- **The 12-week cycle core (shipped):** the quarter tier. A self-documenting cycle template, a read-only `python -m cos cycle` renderer that folds into the morning briefing, a weekly-review ritual, and a probe covering every render path. See [`docs/CYCLES.md`](docs/CYCLES.md).
 
 ## Status
 

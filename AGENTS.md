@@ -203,6 +203,68 @@ If the block does not fire, the hook is almost certainly not wired into
 `settings.json` correctly or the session was not restarted; re-check the matcher
 and the command path before changing anything else.
 
+## Phase 11 — install the 12-week cycle core (Stage 8)
+
+Once the loop and the earlier stages are in place, install the quarter tier: a
+12-week cycle the owner scores weekly and that renders into the morning briefing.
+The pieces are the `cycles/` folder, the `cos cycle` reader (already in the
+engine), the weekly review command, and the human doc
+[`docs/CYCLES.md`](docs/CYCLES.md).
+
+**Copy the cycle files.** Put `cycles/CYCLE-TEMPLATE.md` where the owner's cycle
+plans will live, and copy `commands/cycle-review.md` into the owner's commands
+directory alongside the session-loop commands:
+
+```
+cp cycles/CYCLE-TEMPLATE.md  <vault>/cycles/CYCLE-TEMPLATE.md
+cp commands/cycle-review.md  <vault>/.claude/commands/
+```
+
+The shipped `cycles/cycle-1-example.md` is a filled demo (the fictional persona's
+autumn pipeline); do not copy it into the owner's vault. Read it yourself to see
+the shape, then help the owner write their own cycle 1.
+
+**Set `COS_CYCLES_DIR` if the default does not fit.** The reader looks in
+`<vault>/cycles` by default. If the owner keeps cycles elsewhere, set
+`COS_CYCLES_DIR` in the same mechanism that holds the other `COS_*` variables
+(Phase 1), and confirm `python -m cos cycle --cycles-dir <their dir>` reads it.
+
+**Help the owner draft cycle 1.** Interview them, do not fill it in for them:
+
+1. **The one sentence.** What is this cycle for? If they cannot say it in one
+   sentence, it is too big; narrow it with them.
+2. **Two or three goals.** No more than three. For each, get the goal and why it
+   belongs in this cycle.
+3. **Lead measures.** For each goal, two or three countable weekly actions they
+   control. Push back once if a "measure" is a lag measure in disguise. "Land two
+   clients" is a result they cannot do on purpose; "five outreach conversations a
+   week" is an action they can. Trade the lag measure for the action that drives
+   it. Push back once, then take their answer; it is their plan.
+
+Propose the filled cycle file to the owner before writing it (you hold
+propose-rights). Write it on approval with `status: planning`.
+
+**Verify the reader renders the planning state.**
+
+```
+python -m cos cycle
+```
+
+Expected: with a `planning` cycle in place, the reader prints the cycle number
+and when it starts, not an active scoreboard. If it prints "No active cycle,"
+either `COS_CYCLES_DIR` is wrong or the file's `status` is not one the reader
+recognizes; check those before changing anything else. A malformed-file error
+(exit 1, loud) means the frontmatter or the score table does not parse; fix the
+file, not the engine.
+
+**Schedule the weekly review.** Pick a fixed weekly slot with the owner and run
+`/cycle-review` then: read the active cycle, ask for this week's lead-measure
+counts, append the score row, state the gap in one plain line. On the cycle's
+start date, flip `status` to `active` so the reader starts scoring; at week 12,
+flip it to `complete` with a short retrospective. The probe `probe_cycle` covers
+every render path, so re-run `python -m cos regress` after any change and treat a
+red probe as a stop.
+
 ## If something fails
 
 Report to your owner: the exact command, the verbatim output, and which phase you were in. The probe suite (`python -m cos regress`) is the arbiter of "is the engine broken or is my usage wrong": green probes plus a failing usage almost always means a format or env-var problem on your side.
