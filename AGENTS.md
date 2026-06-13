@@ -243,6 +243,50 @@ scratch record and its index line. If the record writes clean and the index stay
 line per record, the capture path works; `/incident-review` reuses the same files, so a
 clean capture is the install proof.
 
+## Phase 8 — install the self-tending rituals (Stage 5)
+
+Once the corpus is seeded and the loop is in place, install the two rituals that
+keep the corpus from rotting: the corpus lint and the weekly dream run. Full
+reference: [`docs/SELF-TENDING.md`](docs/SELF-TENDING.md).
+
+**Verify the lint runs against the owner's corpus.** The lint is already part of
+the engine; there is nothing to copy. Run it against the owner's real memory
+directory:
+
+```
+python -m cos lint
+```
+
+It reads `COS_MEMORY_DIR` (or pass `--memory-dir`). It is read-only: it never
+writes a file or touches the database, so it is always safe to run. Expect
+`corpus clean` on a healthy corpus, or one line per finding (index-orphans,
+frontmatter-malformed, stale-superseded, duplicate-names, broken-wikilinks) with
+exit code 1. If it reports findings, triage them with the owner: each is a
+structural drift with a plain fix (relist a file in `MEMORY.md`, add a missing
+frontmatter key, move a SUPERSEDED note out of the live corpus, resolve a name
+collision, fix a dangling `[[name]]` link). Fixes to the owner's files are
+proposals; name them, do not make them unasked. Confirm `python -m cos regress`
+stays green (`probe_lint` covers every check).
+
+**Install the dream command.** Copy `commands/dream.md` into wherever your
+runtime looks for custom commands, alongside the session-loop commands:
+
+```
+cp commands/dream.md  <vault>/.claude/commands/
+```
+
+Then either schedule it or alias it. The dream run is meant to fire weekly: if
+your runtime supports scheduled sessions, set one that runs `/dream` once a week;
+if it does not, leave it as a command the owner types `/dream` to invoke.
+Staleness is fine either way. The ritual is catch-up by design, so a missed week
+just reads more residue on the next run.
+
+**Thresholds to adapt:** none. The lint has no tunable thresholds (its five
+checks are structural pass/fail, not configurable limits), and the dream run's
+one hard number, the three-proposal cap, is a deliberate fixed ceiling, not a
+knob. There is nothing here to configure per owner; say so plainly rather than
+inventing config. The only per-owner adaptation is the schedule above.
+
 ## If something fails
 
 Report to your owner: the exact command, the verbatim output, and which phase you were in. The probe suite (`python -m cos regress`) is the arbiter of "is the engine broken or is my usage wrong": green probes plus a failing usage almost always means a format or env-var problem on your side.
