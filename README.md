@@ -64,6 +64,10 @@ Four rules, written as prose your assistant adopts, live in [`docs/OPERATING-RUL
 
 Rules decay when they live only as prose: a long session or a fresh context window quietly drops them. So the rules that must not break are moved out of the model's memory and into the harness around it. This stage ships three Claude Code hooks, off until you wire them in: `protect_surfaces` enforces the propose/commit split by blocking edits to files you marked as yours (with a one-time consent-file override), `effort_governor` is a runaway brake that trips at tool-call thresholds, and `output_lint` checks the assistant's final message against rules you turn on. Every hook is standard-library only and fails open by design (a bug in a hook allows the action rather than locking you out), and every branch is covered by `probe_hooks`. See [`docs/ENFORCEMENT.md`](docs/ENFORCEMENT.md).
 
+## Self-tending
+
+Untended memory rots quietly: the index drifts, two rules start to contradict, dead notes accumulate, and none of it is loud. The fix is a ritual, not discipline. Two self-tending rituals run on a schedule: a **corpus lint** (`python -m cos lint`) runs five deterministic, read-only checks over the memory corpus (index orphans, malformed frontmatter, stale done-notes, duplicate names, broken cross-links) and stays silent on a clean corpus, loud on findings; and a weekly **dream run** (`/dream`) re-reads recent session residue and proposes at most three durable patterns ("you keep doing X", "these two rules contradict", "this memory looks dead"), each as accept or reject, so the corpus changes only through your yes. This is design principle ten made real. See [`docs/SELF-TENDING.md`](docs/SELF-TENDING.md).
+
 ## Session loop
 
 Three commands give a work session a beginning, middle, and end: `/start` opens the day with a Must/Should/Could briefing built from stored facts, `/sync` checkpoints mid-session and saves durable facts, and `/wrap` closes the session, writes an episode record, and leaves a state note the next `/start` resumes from. They live in [`commands/`](commands/) as prose instruction files an AI agent reads, and they use the memory engine for everything they store. The engine is the deterministic half; the commands are the judgment half. See [`docs/SESSION-LOOP.md`](docs/SESSION-LOOP.md).
@@ -75,13 +79,14 @@ cos/                  the engine (python -m cos)
   config.py           env-var seam: COS_VAULT, COS_STATE_DIR, COS_DB, COS_MEMORY_DIR
   memory/             schema, migrations, writers, loader, context retrieval
   braid/              write-contract validation + JSON Schema contracts
-  subcommands/        the CLI: memory add/retrieve/search/stats/context/seed, regress
-commands/             session-loop commands your AI reads: start.md, sync.md, wrap.md
+  lint.py             read-only structural checks over the memory corpus
+  subcommands/        the CLI: memory add/retrieve/search/stats/context/seed, regress, lint
+commands/             session-loop + ritual commands your AI reads: start.md, sync.md, wrap.md, dream.md
 hooks/                enforcement hooks (stdlib-only) + their JSON config
   config/             protected_surfaces.json, governor.json, lint_rules.json
 probes/               the verification harness (self-contained probe scripts)
 sample-vault/         synthetic demo vault (fictional persona, zero real data)
-docs/                 operating rules, session-loop guide, enforcement guide
+docs/                 operating rules, session-loop guide, enforcement guide, self-tending guide
 AGENTS.md             instructions your AI reads to install and adapt the kit
 ```
 
@@ -92,8 +97,9 @@ This repository releases in stages, each re-authored clean and reviewed on its o
 - **Stage 1, the runnable memory core (shipped):** the bitemporal fact store, write contracts, three-tier retrieval, the markdown loader, and the verification harness.
 - **Stage 2, the session loop (shipped):** the `/start`, `/sync`, and `/wrap` commands and their docs, built on top of the memory core.
 - **Stage 3, the enforcement bundle (shipped, this stage):** three Claude Code hooks that enforce the operating rules mechanically (the propose/commit write gate, the effort governor, and an output linter), their JSON config, and a probe that covers every branch. See [`docs/ENFORCEMENT.md`](docs/ENFORCEMENT.md).
-- **Later stages:** the incident logbook, the self-tending rituals, and the capability registry pattern.
+- **Stage 5, the self-tending rituals (shipped):** the corpus lint (`python -m cos lint`, five read-only checks), the weekly dream run (`/dream`), a probe covering every check, and the doc. See [`docs/SELF-TENDING.md`](docs/SELF-TENDING.md).
+- **Later stages:** the incident logbook and the capability registry pattern.
 
 ## Status
 
-Every probe in `probes/` passes (`python -m cos regress`: 8 passed, 0 failed). The sample vault seeds end to end and re-seeds idempotently. The codebase contains zero personal data by construction: it was re-authored clean-room, allow-list only, and the release gate includes an automated leak scan.
+Every probe in `probes/` passes (`python -m cos regress`: 9 passed, 0 failed). The sample vault seeds end to end and re-seeds idempotently. The codebase contains zero personal data by construction: it was re-authored clean-room, allow-list only, and the release gate includes an automated leak scan.
