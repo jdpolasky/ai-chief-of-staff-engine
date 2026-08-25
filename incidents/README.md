@@ -38,7 +38,7 @@ status: logged
 Two to four plain sentences.
 
 ## Root cause
-The real cause, not the flattering one.
+The cause that actually produced the failure, even when it makes you look bad.
 
 ## Cost
 One line: time, money, or trust.

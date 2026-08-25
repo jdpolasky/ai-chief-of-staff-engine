@@ -17,10 +17,10 @@ production. Capture first. Analyze later, at `/incident-review`.
 ## The one rule that matters
 
 **Write the record straight, even when the owner is venting.** If the owner is
-frustrated, the record still gets the real root cause, not a softened one and not a
-defensive one. Do not argue with the owner inside a record. Do not explain why it
+frustrated, the record still gets the real root cause, with no softening and no
+defending. Do not argue with the owner inside a record. Do not explain why it
 was not really your fault. If the failure was the owner's process, say that plainly
-too, without blame. The record is data, not a verdict. A record that flatters anyone
+too, without blame. The record is data. It renders no verdict. A record that flatters anyone
 is a record that teaches nothing.
 
 ## Step 1: write the record file
@@ -47,8 +47,8 @@ Two to four plain sentences. What the failure was, in the order it happened. No
 preamble, no apology, no spin. Just what occurred.
 
 ## Root cause
-The real cause, not the flattering one. The real reason this happened, named in one
-or two sentences. If the real cause is "I trusted memory instead of reading the
+The cause that actually produced the failure, named in one or two sentences, even
+when it makes the assistant look bad. If the real cause is "I trusted memory instead of reading the
 source," write that. If it is "the owner's note was ambiguous," write that.
 
 ## Cost
@@ -56,8 +56,8 @@ One line. Time, money, or trust. What did this failure actually cost?
 
 ## Rule candidate
 The rule that would have prevented this, in one sentence, or "none yet" if no clean
-rule is obvious. This is a candidate, not a committed rule; `/incident-review` decides
-whether it graduates.
+rule is obvious. This is only a candidate; `/incident-review` decides whether it
+graduates into a committed rule.
 ```
 
 ### The frontmatter fields
@@ -86,9 +86,9 @@ tree does not get used.
   note, a missing file, a decision not yet made). Logged without blame, because the
   fix is a process fix.
 
-If a record could fit two classes, pick the one closest to the root cause, not the
-symptom. A wrong answer from an unread note is `skipped-verification`, not
-`wrong-assumption`, because the source existed.
+If a record could fit two classes, pick the one closest to the root cause rather
+than to the symptom. A wrong answer from an unread note files as
+`skipped-verification`, because the source existed and went unread.
 
 ## Step 2: append one line to the index
 
