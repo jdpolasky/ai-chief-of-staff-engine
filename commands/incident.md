@@ -47,8 +47,7 @@ Two to four plain sentences. What the failure was, in the order it happened. No
 preamble, no apology, no spin. Just what occurred.
 
 ## Root cause
-The cause that actually produced the failure, named in one or two sentences, even
-when it makes the assistant look bad. If the real cause is "I trusted memory instead of reading the
+Name what produced the failure, in one or two sentences. If the real cause is "I trusted memory instead of reading the
 source," write that. If it is "the owner's note was ambiguous," write that.
 
 ## Cost

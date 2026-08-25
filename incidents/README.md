@@ -38,7 +38,7 @@ status: logged
 Two to four plain sentences.
 
 ## Root cause
-The cause that actually produced the failure, even when it makes you look bad.
+One or two sentences naming what produced it.
 
 ## Cost
 One line: time, money, or trust.
