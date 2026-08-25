@@ -86,7 +86,7 @@ One assistant bleeds behaviors across contexts: the coach starts executing, the 
 
 ## 12-week cycles
 
-Annual plans die because a year is too far to feel and too vague to act on. This stage adds the quarter tier: a 12-week cycle with two or three goals, each scored not on the results you hope for but on the weekly actions you control (lead measures, not lag measures). You score the actions once a week, and the cycle renders into the morning briefing through the session loop, so the plan you wrote three weeks ago greets you each morning without you remembering it exists. The pieces are a self-documenting template (`cycles/CYCLE-TEMPLATE.md`), a read-only renderer (`python -m cos cycle`), and a weekly-review ritual. A pause is a conscious move that costs nothing but honesty; a quietly abandoned cycle is amnesia. See [`docs/CYCLES.md`](docs/CYCLES.md).
+Annual plans die because a year is too far to feel and too vague to act on. This stage adds the quarter tier: a 12-week cycle with two or three goals, each scored not on the results you hope for but on the weekly actions you control (lead measures, not lag measures). You score the actions once a week, and the cycle renders into the morning briefing through the session loop, so the plan you wrote three weeks ago greets you each morning without you remembering it exists. The pieces are a self-documenting template (`cycles/CYCLE-TEMPLATE.md`), a read-only renderer (`python -m cos cycle`), and a weekly-review ritual. A pause is a conscious move that costs nothing but admitting it; a quietly abandoned cycle is amnesia. See [`docs/CYCLES.md`](docs/CYCLES.md).
 
 ## Repository map
 

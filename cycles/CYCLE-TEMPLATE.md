@@ -63,8 +63,8 @@ were wrong. -->
 
 <!-- The weekly review appends one row per week here. Each row records the actual
 lead-measure counts for the week, a simple score (how many of the week's lead
-measures you hit their target, out of how many there were), and one honest line.
-The score is a heartbeat, not a grade. A weak week scored honestly is worth more
+measures you hit their target, out of how many there were), and one plain line.
+The score is a heartbeat, not a grade. A weak week scored plainly is worth more
 than a strong week left blank.
 
 Columns:

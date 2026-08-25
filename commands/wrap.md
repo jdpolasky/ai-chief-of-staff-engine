@@ -12,7 +12,7 @@ approves, then you write. End cleanly.
 
 ## Step 1: recap
 
-Give a short, honest recap in two parts:
+Give a short, accurate recap in two parts:
 
 - **Wins:** what actually got done this session. Decisions made, work shipped,
   questions resolved. If a session was thin, say so; do not inflate.

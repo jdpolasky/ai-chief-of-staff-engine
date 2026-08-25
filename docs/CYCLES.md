@@ -34,7 +34,7 @@ Once a week you count what you did against the weekly actions you chose, and you
 write down a simple score: how many lead measures hit their target, out of how
 many there were. Three of four is `3/4`. That is the whole score. It is not a
 performance review and it carries no verdict. It is a heartbeat: proof the cycle
-is still alive and an honest read of how the week went.
+is still alive and an accurate read of how the week went.
 
 The discipline that matters is scoring every week, including the bad ones,
 especially the bad ones. A weak week scored `1/4` with one plain line about what
@@ -49,7 +49,7 @@ wrong. You have two ways to stop a cycle. One is to quietly stop scoring it and
 let it fade, and three weeks later you have a dead plan and a vague guilt about
 it. The other is to set its status to `paused` on purpose.
 
-A paused cycle costs nothing but honesty. The reader shows it as paused, plainly,
+A paused cycle costs nothing but admitting it. The reader shows it as paused, plainly,
 with no shame language, because choosing to pause is a decision and decisions are
 allowed. A paused cycle is a plan you stopped on purpose; a quietly abandoned one
 is amnesia wearing a plan's clothes. The difference is whether you decided. The
@@ -100,5 +100,5 @@ trust.
    week. Count, write the row, read the score. Twelve times, and the cycle is done.
 
 Look at [`../cycles/cycle-1-example.md`](../cycles/cycle-1-example.md) for a filled
-cycle with three weeks of scores, including one honest weak week, to see the shape
+cycle with three weeks of scores, including one plainly scored weak week, to see the shape
 before you write your own.

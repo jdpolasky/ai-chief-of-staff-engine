@@ -65,7 +65,7 @@ Field notes, all enforced by the write contract:
   `audit`, `reconcile`.
 - `source_session`: the session number, if you track one. Optional, but useful for
   provenance.
-- `confidence`: 0.0 to 1.0. Be honest. A thing the owner stated plainly is high; an
+- `confidence`: 0.0 to 1.0. A thing the owner stated plainly is high; an
   inference is lower.
 - `valid_from`: the date the fact became true in the world, `YYYY-MM-DD`.
 - `tx_from`: the moment you are recording it, `YYYY-MM-DD HH:MM:SS.mmm` (millisecond

@@ -100,7 +100,7 @@ setup:
 None of this requires writing code. You are editing prose instructions and telling your
 assistant where your files are.
 
-## Honest limitations
+## Real limitations
 
 These commands are rituals carried out by a model, not deterministic scripts. The
 assistant decides what the Must is, what is worth saving, and how to phrase a briefing,
@@ -109,9 +109,9 @@ you save is validated and stored exactly, a query returns exactly what is there.
 guarantee is narrow but real. The engine will not lose or corrupt what the commands
 choose to save, and it will hand back exactly what was stored. What the commands choose
 to save, and how well they brief you, is judgment, and judgment is checkable, not
-certain. Read the briefings, approve the writes, and the loop stays honest. Rubber-stamp
+certain. Read the briefings, approve the writes, and the loop stays accurate. Rubber-stamp
 them and it drifts.
 
-For the behavioral rules that keep the judgment honest (stop and check before acting,
+For the behavioral rules that keep the judgment accountable (stop and check before acting,
 prove claims with a tool, invite the stress test, never make things up), see
 [`OPERATING-RULES.md`](OPERATING-RULES.md).

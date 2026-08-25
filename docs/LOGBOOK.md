@@ -14,7 +14,7 @@ argument lived in the moment and died with it. You both spent energy and learned
 nothing durable.
 
 The logbook replaces the argument with a record. The failure gets written down once, in
-plain language, with an honest root cause and a real cost. Then the conversation moves
+plain language, with the real root cause and a real cost. Then the conversation moves
 on. The record does the remembering. There is no shame in it and nothing to relitigate,
 because a record is not a verdict on anyone, it is a data point. And a data point
 outlives the mood that produced it. You can be annoyed when you log it and the record
@@ -35,7 +35,7 @@ seconds, and it is meant to be written mid-annoyance, while the failure is fresh
 You invoke `/incident`, or your assistant catches itself failing and writes the record
 on its own. Either way the record gets written straight, even when you are venting. The
 assistant does not argue with you inside a record, does not soften the cause to look
-better, and does not make you fill in fields. It writes what happened, the honest cause,
+better, and does not make you fill in fields. It writes what happened, the real cause,
 the cost, and a candidate rule, then stops. Capture first. The analysis waits.
 
 Owners tend to give this folder a saltier name than "incidents," something closer to a
@@ -117,6 +117,6 @@ Almost nothing, and that is the point.
 
 That is the entire job. The capture, the classification, the grouping, the rule drafting,
 the re-seeding, and the hook proposals are the assistant's work. Yours is to name the
-failures honestly and to decide which patterns become standing rules. Do those two things
+failures plainly and to decide which patterns become standing rules. Do those two things
 and the system gets quietly better at not repeating itself, which is the only kind of
 improvement that compounds.

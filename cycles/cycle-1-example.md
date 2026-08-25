@@ -47,7 +47,7 @@ simple stock list with reorder points ends the guessing before the autumn rush.
 - 2026-05-11: Cycle opened. Status planning to active. Both goals feel right for
   the season; the one-sentence test passed on the second try after the first
   draft tried to fold in a website rebuild that did not belong here.
-- 2026-06-01: Week 3 review. One weak week, scored honest. Not pausing or
+- 2026-06-01: Week 3 review. One weak week, scored plainly. Not pausing or
   adjusting anything: a single survey-driven slip is not a pattern, and the lead
   measures are still the right ones. Note for week 4: protect two outreach hours
   before the studio fills up with delivery work.

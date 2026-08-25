@@ -85,7 +85,7 @@ makes that true mechanically, no matter which mode the assistant thinks it is in
 the contract as the intent and the hook as the floor. Where they overlap, the hook wins,
 because a hook cannot be talked around and prose can.
 
-## Honest limits
+## Real limits
 
 Contracts are held by the model, so they can drift on a long session. That is the
 unavoidable cost of a rule that lives in prose rather than code. Three things keep the
@@ -94,6 +94,6 @@ actually hold. They are **loaded at entry**, so the contract is fresh, not a mem
 forty messages ago. And the **riskiest lines escalate to hooks**, so the limits that
 would do real damage if forgotten do not depend on the model remembering them at all.
 
-That is the honest shape of it. A contract makes the boundary explicit and auditable,
+That is the real shape of it. A contract makes the boundary explicit and auditable,
 which is worth a great deal on its own. For the lines where explicit is not enough, the
 enforcement layer is where they go to become unbreakable.

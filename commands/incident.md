@@ -17,7 +17,7 @@ production. Capture first. Analyze later, at `/incident-review`.
 ## The one rule that matters
 
 **Write the record straight, even when the owner is venting.** If the owner is
-frustrated, the record still gets the honest root cause, not a softened one and not a
+frustrated, the record still gets the real root cause, not a softened one and not a
 defensive one. Do not argue with the owner inside a record. Do not explain why it
 was not really your fault. If the failure was the owner's process, say that plainly
 too, without blame. The record is data, not a verdict. A record that flatters anyone
@@ -47,8 +47,8 @@ Two to four plain sentences. What the failure was, in the order it happened. No
 preamble, no apology, no spin. Just what occurred.
 
 ## Root cause
-The honest cause, not the flattering one. The real reason this happened, named in one
-or two sentences. If the honest cause is "I trusted memory instead of reading the
+The real cause, not the flattering one. The real reason this happened, named in one
+or two sentences. If the real cause is "I trusted memory instead of reading the
 source," write that. If it is "the owner's note was ambiguous," write that.
 
 ## Cost
@@ -63,7 +63,7 @@ whether it graduates.
 ### The frontmatter fields
 
 - `date`: the day the failure happened, `YYYY-MM-DD`.
-- `actor`: who failed. One of `assistant`, `owner`, or `both`. Be honest. Most
+- `actor`: who failed. One of `assistant`, `owner`, or `both`. Most
   records will be `assistant`; the taxonomy is not here to protect anyone.
 - `class`: the classification. One of the six below. Pick the closest single fit.
 - `status`: always `logged` at capture time. `/incident-review` changes it to
@@ -148,4 +148,4 @@ it; never confirm a quantity from memory.
 
 Notice what the record does not do: it does not say the conversation was confusing, it
 does not say Maya should have reminded it about the note, it does not hedge. It names
-the honest cause and the real cost, then stops. That is the standard for every record.
+the real cause and the real cost, then stops. That is the standard for every record.

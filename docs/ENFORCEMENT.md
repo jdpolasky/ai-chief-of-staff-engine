@@ -39,10 +39,10 @@ assistant's final message and checks it against regex rules you turn on. If a ru
 matches, the stop is blocked and the assistant has to rewrite before it hands the
 turn back. It ships with three example rules (ban the em-dash, flag a suspiciously
 long quote, flag three hedging words stacked in one sentence); all but the
-first are off by default. It is a last-line style and honesty gate, not a content
+first are off by default. It is a last-line style check, not a content
 judge.
 
-## The fail-open philosophy, and its honest tradeoff
+## The fail-open philosophy, and its tradeoff
 
 These hooks run inside your live session on tool calls and turn-endings. A bug in
 a hook, or a half-finished pip install, could in principle wedge your session: if
@@ -56,7 +56,7 @@ allows the action. The hooks are also **standard-library only**, no third-party
 imports, so a broken dependency cannot stop them from running at all. Their config
 files are plain JSON for the same reason.
 
-The honest tradeoff: fail-open means a broken hook silently stops enforcing. If
+The tradeoff: fail-open means a broken hook silently stops enforcing. If
 your governor config has a typo, the brake quietly does nothing rather than
 blocking you. That is the deliberate choice. A guardrail that occasionally fails
 to guard is recoverable; a guardrail that can lock you out of your own machine is

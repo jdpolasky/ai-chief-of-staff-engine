@@ -38,7 +38,7 @@ status: logged
 Two to four plain sentences.
 
 ## Root cause
-The honest cause, not the flattering one.
+The real cause, not the flattering one.
 
 ## Cost
 One line: time, money, or trust.

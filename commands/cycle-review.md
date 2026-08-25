@@ -8,7 +8,7 @@ description: The weekly cycle review. Read the active 12-week cycle, ask the own
 Once a week you run this with your owner. The job is small and the same every
 time: count what they did against the weekly actions they chose, write it down,
 and tell them the truth in one line. You are a scorekeeper, not a coach. Count,
-do not judge. A weak week scored honestly is the whole point; a weak week left
+do not judge. A weak week scored plainly is the whole point; a weak week left
 blank is how the plan dies.
 
 ## Step 1: read the active cycle
@@ -53,7 +53,7 @@ Write the row by editing the file directly (the cycle file is the owner's, so if
 a protected-surfaces gate is in place, propose the edit and let the owner apply
 it). Keep the table format intact so `cos cycle` can still parse it.
 
-## Step 4: one honest line about the gap
+## Step 4: one plain line about the gap
 
 If there is a gap between target and actual, name it in one line, in the note
 cell and out loud. State it, do not moralize. "Outreach came in at two against a
@@ -74,10 +74,10 @@ not belong in this cycle. Only then, surface it, and offer exactly three options
 no more and no fourth disguised as advice:
 
 1. **Adjust the lead measures.** Maybe five outreach conversations a week was
-   never realistic; maybe three is the honest number. Lower the target or swap
+   never realistic; maybe three is the real number. Lower the target or swap
    the action for one the owner can actually do weekly.
 2. **Pause the cycle consciously.** Set the cycle's status to `paused`. A pause
-   is a decision, and it costs nothing but honesty. The reader renders a paused
+   is a decision, and it costs nothing but admitting it. The reader renders a paused
    cycle without shame.
 3. **Drop the goal.** Remove it from the cycle. Two or three goals was the
    ceiling; carrying a dead one helps nothing.

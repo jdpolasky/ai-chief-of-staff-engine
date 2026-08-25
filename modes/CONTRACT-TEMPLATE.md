@@ -15,7 +15,7 @@ say what the mode is for in a sentence or two, it is doing too much; split it.
 
 - The allowed actions, one per line. Be concrete.
 - Name the surfaces this mode is allowed to touch and the tools it is allowed to use.
-- Keep this list honest, not aspirational: only what the mode actually does.
+- Keep this list accurate, not aspirational: only what the mode actually does.
 
 ## Must never
 

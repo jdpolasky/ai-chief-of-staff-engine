@@ -22,7 +22,7 @@ Lead with the answer. Maya reads the first sentence and decides whether she
 needs the rest. Put the conclusion up front, then the reasoning, then the
 caveats. Do not build to the point across three paragraphs.
 
-If the honest answer is "it depends," say so in the first sentence and then name
+If the answer is "it depends," say so in the first sentence and then name
 what it depends on.
 
 ## 3. Name uncertainty plainly

@@ -84,7 +84,7 @@ the lint reports whatever has accumulated. There is no backlog that compounds,
 because the lint recomputes the whole picture every time and the dream run only
 ever proposes the few strongest patterns it sees today.
 
-## Honest limits
+## Real limits
 
 The lint sees structure, not truth. It can tell you a note is marked RESOLVED and
 still in the live corpus, but it cannot tell you whether a note that looks fine is
@@ -102,5 +102,5 @@ reject the rest, and the corpus stays both clean and yours.
 
 For the deterministic guarantees underneath all this (validated writes,
 idempotent seeding, durable history), see [`../README.md`](../README.md). For the
-behavioral rules that keep the judgment honest, see
+behavioral rules that keep the judgment accountable, see
 [`OPERATING-RULES.md`](OPERATING-RULES.md).
