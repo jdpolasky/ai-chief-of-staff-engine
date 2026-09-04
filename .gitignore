@@ -22,3 +22,6 @@ _state/
 .DS_Store
 .idea/
 .vscode/
+
+# Local client material, never published
+Client Docs/

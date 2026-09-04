@@ -1,8 +1,12 @@
-# AI Chief of Staff — Memory Engine
+# AI Chief of Staff: Memory Engine and Operating Loop
+
+*Last verified September 2026. Eight staged releases, v0.1.0 through v0.8.0, each with notes on the Releases page.*
 
 A working, tested memory engine for an AI chief of staff: a bitemporal fact store your AI assistant reads at the start of every session and writes to as it learns who you are, what you're working on, and how you want to be helped.
 
 This is not a framework or a demo. It is the engine extracted from a personal AI-chief-of-staff system that I run daily, re-built clean for public use. Your AI can install it, adapt it to your vault, and prove the install worked, all without you writing code.
+
+The memory engine is stage one. Seven further stages build the operating loop on top of it: session commands, enforcement hooks, an incident logbook, self-tending rituals, a capability registry, mode contracts, and 12-week cycles. All eight are shipped and probed. The system this was extracted from is published as [chief-of-staff-2](https://github.com/jdpolasky/chief-of-staff-2); this repo is its machinery.
 
 ## What it does
 
@@ -120,6 +124,8 @@ This repository releases in stages, each re-authored clean and reviewed on its o
 - **Stage 4, the incident logbook (shipped):** a failure-capture system that logs failures as data and mines them for repeats. Two commands (`/incident` to capture, `/incident-review` to mine and graduate patterns into rules), the incidents folder, and the doc. Markdown and prose only, no new code. See [`docs/LOGBOOK.md`](docs/LOGBOOK.md).
 - **Stage 5, the self-tending rituals (shipped):** the corpus lint (`python -m cos lint`, five read-only checks), the weekly dream run (`/dream`), a probe covering every check, and the doc. See [`docs/SELF-TENDING.md`](docs/SELF-TENDING.md).
 - **Stage 6, the capability registry (shipped):** an owner-curated routing file the assistant consults before picking a tool, recording the best route, the fallback ladder, and dead ends that carry retest dates, plus the `route` command and a probe over every path. See [`docs/CAPABILITY.md`](docs/CAPABILITY.md).
+- **Stage 7, mode contracts (shipped):** one assistant identity with several named modes, each governed by a short contract stating its purpose, what it may and must never do, and how it opens and closes, plus a blank template and the `/mode` command. See [`docs/MODES.md`](docs/MODES.md).
+- **Stage 8, the 12-week cycle core (shipped):** the quarter tier, a year's ambition carried twelve weeks at a time and scored weekly on lead measures rather than outcomes, with a read-only renderer and a weekly cycle-review ritual that feeds the morning briefing. See [`docs/CYCLES.md`](docs/CYCLES.md).
 
 ## Status
 
