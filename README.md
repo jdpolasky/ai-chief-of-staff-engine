@@ -129,4 +129,4 @@ This repository releases in stages, each re-authored clean and reviewed on its o
 
 ## Status
 
-Every probe in `probes/` passes (`python -m cos regress` reports the full count with zero failures). The sample vault seeds end to end and re-seeds idempotently. The codebase was re-authored clean-room, allow-list only, to keep personal data out, and it was checked by hand for personal data before release.
+Every probe in `probes/` passes (`python -m cos regress` reports the full count with zero failures). The sample vault seeds end to end and re-seeds idempotently. The codebase was re-authored clean-room, allow-list only, to keep personal data out.
