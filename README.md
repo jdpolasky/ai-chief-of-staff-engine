@@ -4,9 +4,9 @@
 
 A working, tested memory engine for an AI chief of staff: a bitemporal fact store your AI assistant reads at the start of every session and writes to as it learns who you are, what you're working on, and how you want to be helped.
 
-This is not a framework or a demo. It is the engine extracted from a personal AI-chief-of-staff system that I run daily, re-built clean for public use. Your AI can install it, adapt it to your vault, and prove the install worked, all without you writing code.
+This is a working memory engine and operating loop for an AI chief of staff. I built it as the memory layer for my own system, then re-built it clean for public use. My own daily system never adopted it and still runs on plain markdown. Your AI can install it, adapt it to your vault, and prove the install worked, all without you writing code.
 
-The memory engine is stage one. Seven further stages build the operating loop on top of it: session commands, enforcement hooks, an incident logbook, self-tending rituals, a capability registry, mode contracts, and 12-week cycles. All eight are shipped. The stages that add code (1, 3, 5, 6, and 8) each come with probes; stages 2, 4, and 7 are prose commands and markdown, with no code to probe. The system this was extracted from is published as [chief-of-staff-2](https://github.com/jdpolasky/chief-of-staff-2); this repo is its machinery.
+The memory engine is stage one. Seven further stages build the operating loop on top of it: session commands, enforcement hooks, an incident logbook, self-tending rituals, a capability registry, mode contracts, and 12-week cycles. All eight are shipped. The stages that add code (1, 3, 5, 6, and 8) each come with probes; stages 2, 4, and 7 are prose commands and markdown, with no code to probe. My working system is published separately as [chief-of-staff-2](https://github.com/jdpolasky/chief-of-staff-2), and it runs on plain markdown without this engine.
 
 ## What it does
 
