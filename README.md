@@ -6,7 +6,7 @@ A working, tested memory engine for an AI chief of staff: a bitemporal fact stor
 
 This is not a framework or a demo. It is the engine extracted from a personal AI-chief-of-staff system that I run daily, re-built clean for public use. Your AI can install it, adapt it to your vault, and prove the install worked, all without you writing code.
 
-The memory engine is stage one. Seven further stages build the operating loop on top of it: session commands, enforcement hooks, an incident logbook, self-tending rituals, a capability registry, mode contracts, and 12-week cycles. All eight are shipped and probed. The system this was extracted from is published as [chief-of-staff-2](https://github.com/jdpolasky/chief-of-staff-2); this repo is its machinery.
+The memory engine is stage one. Seven further stages build the operating loop on top of it: session commands, enforcement hooks, an incident logbook, self-tending rituals, a capability registry, mode contracts, and 12-week cycles. All eight are shipped. The stages that add code (1, 3, 5, 6, and 8) each come with probes; stages 2, 4, and 7 are prose commands and markdown, with no code to probe. The system this was extracted from is published as [chief-of-staff-2](https://github.com/jdpolasky/chief-of-staff-2); this repo is its machinery.
 
 ## What it does
 
@@ -129,4 +129,4 @@ This repository releases in stages, each re-authored clean and reviewed on its o
 
 ## Status
 
-Every probe in `probes/` passes (`python -m cos regress` reports the full count with zero failures). The sample vault seeds end to end and re-seeds idempotently. The codebase contains zero personal data by construction: it was re-authored clean-room, allow-list only, and the release gate includes an automated leak scan.
+Every probe in `probes/` passes (`python -m cos regress` reports the full count with zero failures). The sample vault seeds end to end and re-seeds idempotently. The codebase was re-authored clean-room, allow-list only, to keep personal data out.
