@@ -9,8 +9,10 @@ Enforcement moves the rules out of the model's memory and into the harness aroun
 it. A hook is a small script the runtime runs on your behalf at a fixed moment:
 before a tool call, or when the assistant tries to end its turn. The script can
 let the action through or block it. Because the runtime runs it, not the model, a
-hook cannot be forgotten, talked around, or lost to a context window. The rule
-holds whether the model remembers it or not.
+hook doesn't depend on the model remembering the rule, and a long session or a
+fresh context window doesn't drop it. A hook only covers the tools it's wired to,
+though. The protect_surfaces hook here covers Edit, Write, and NotebookEdit, so a
+shell command can still write to a protected file.
 
 This stage ships three hooks, a config file for each, and a probe that proves
 every branch of all three. They are grounded in the official Claude Code hooks
@@ -84,7 +86,8 @@ These are off until you wire them in. Hooks live in your `settings.json` under a
 the hook. The structure below is copied from the official format in the docs page
 linked above. Point the `command` paths at wherever you copied this repo's
 `hooks/` folder; `${CLAUDE_PROJECT_DIR}` expands to your project root, so the
-example uses it.
+example uses it. Each path is wrapped in escaped quotes so a project folder with
+a space in its name still works.
 
 ```json
 {
@@ -95,7 +98,7 @@ example uses it.
         "hooks": [
           {
             "type": "command",
-            "command": "python ${CLAUDE_PROJECT_DIR}/hooks/protect_surfaces.py"
+            "command": "python \"${CLAUDE_PROJECT_DIR}/hooks/protect_surfaces.py\""
           }
         ]
       },
@@ -104,7 +107,7 @@ example uses it.
         "hooks": [
           {
             "type": "command",
-            "command": "python ${CLAUDE_PROJECT_DIR}/hooks/effort_governor.py"
+            "command": "python \"${CLAUDE_PROJECT_DIR}/hooks/effort_governor.py\""
           }
         ]
       }
@@ -115,7 +118,7 @@ example uses it.
         "hooks": [
           {
             "type": "command",
-            "command": "python ${CLAUDE_PROJECT_DIR}/hooks/output_lint.py"
+            "command": "python \"${CLAUDE_PROJECT_DIR}/hooks/output_lint.py\""
           }
         ]
       }

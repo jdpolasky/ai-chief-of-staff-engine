@@ -1,5 +1,7 @@
 # AI Chief of Staff: Memory Engine and Operating Loop
 
+[![regress](https://github.com/jdpolasky/ai-chief-of-staff-engine/actions/workflows/regress.yml/badge.svg)](https://github.com/jdpolasky/ai-chief-of-staff-engine/actions/workflows/regress.yml)
+
 *Last verified September 2026. Eight staged releases, v0.1.0 through v0.8.0, each with notes on the Releases page.*
 
 A working, tested memory engine for an AI chief of staff: a bitemporal fact store your AI assistant reads at the start of every session and writes to as it learns who you are, what you're working on, and how you want to be helped.
@@ -12,30 +14,75 @@ The memory engine is stage one. Seven further stages build the operating loop on
 
 Most AI-assistant memory is a text file that grows until it rots. This engine treats memory as data:
 
-- **Bitemporal fact store** (SQLite + FTS5). Every fact carries two timelines: when it was true in the world (`valid_from`/`valid_to`) and when the system learned it (`tx_from`/`tx_to`). Facts are never silently edited; they are superseded or retracted, and history survives.
+- **Fact store with history** (SQLite + FTS5). The engine keeps transaction-time history: each fact records when the system wrote it (`tx_from`) and, once a writer replaces or retracts it, when that belief ended (`tx_to`). `memory context --as-of` uses this to show what the system believed at an earlier moment. Each fact also stores `valid_from` and `valid_to`, the dates it was true in the world. Those are kept for your own use; no query filters on them.
+- **What adds and what replaces.** The markdown loader only adds facts. Editing or deleting a memory file and re-seeding leaves the old fact in the database. `supersede_fact` and `retract_fact` in `cos/memory/writers.py` exist for writers that call them; there's no CLI command for either. `memory search` and `memory retrieve` skip retracted facts but still return superseded ones. `memory context` returns current beliefs only.
 - **Write contracts.** Every write is validated against a JSON Schema contract before it touches the database. Malformed memory is rejected loudly at the gate, not discovered later.
-- **Three-tier context retrieval.** `cos memory context "<query>"` returns a ranked, deduplicated briefing (pinned structural facts, high-relevance matches, background) sized for an AI context window.
-- **Markdown loader.** Your memory corpus stays human-readable markdown with YAML frontmatter. The loader seeds it into the database idempotently: re-runs are no-ops, long rule files split into retrievable sections, nothing truncates.
-- **Verification harness.** `python -m cos regress` runs the probe suite. Every code path in the engine ships with a probe that proves it works. If your AI ports or adapts this engine, the harness tells you whether the port is real.
+- **Three-tier context retrieval.** `python -m cos memory context --query "<words>"` returns a ranked, deduplicated briefing (pinned structural facts, high-relevance matches, background) sized for an AI context window.
+- **Markdown loader.** Your memory corpus stays human-readable markdown with YAML frontmatter. The loader seeds it into the database idempotently, so re-runs are no-ops. Law files (`laws_*.md`) split into one fact per section, and none of their text is lost. Every other memory file becomes one fact, cut at 1,950 characters, so keep those files short.
+- **Verification harness.** `python -m cos regress` runs the probe suite. Each stage that adds code (stages 1, 3, 5, 6, and 8) ships with probes for the commands it adds. Each probe runs with the engine's paths pointed at a fresh temp folder, so the suite never writes to your vault. If your AI ports or adapts this engine, the harness tells you whether the port is real.
 
 ## Quickstart (five minutes)
 
-Requires Python 3.13+.
+Requires Python 3.10 or newer.
 
 ```
-git clone <this repo>
+git clone https://github.com/jdpolasky/ai-chief-of-staff-engine.git
 cd ai-chief-of-staff-engine
-pip install -r requirements.txt
+pip install -e .
 
 # Prove the kit works as shipped
 python -m cos regress
+```
 
-# Try it on the included synthetic vault
-set COS_VAULT=%CD%\sample-vault          (PowerShell: $env:COS_VAULT="$PWD\sample-vault")
+`pip install -e .` installs the engine, its two dependencies, and a `cos` command. Use the editable install (`-e`). The `capability/`, `cycles/`, and `probes/` folders sit outside the Python package, so a regular `pip install .` leaves them behind, and `cos capability` and `cos regress` look for theirs in the repo folder. `python -m cos --version` prints the installed version.
+
+Then point the engine at the included synthetic vault. Pick the line for your shell.
+
+PowerShell:
+
+```
+$env:COS_VAULT = "$PWD\sample-vault"
+```
+
+Command Prompt:
+
+```
+set COS_VAULT=%CD%\sample-vault
+```
+
+bash (macOS, Linux, Git Bash):
+
+```
+export COS_VAULT="$PWD/sample-vault"
+```
+
+Seed it and query it:
+
+```
 python -m cos memory seed --memory-dir sample-vault/memory
 python -m cos memory search "irrigation"
-python -m cos memory context --query "what is the flagship project"
+python -m cos memory context --query flagship
 ```
+
+The last command prints this (the dates are the day you seeded):
+
+```
+## Operational (0 / 10)
+(none)
+
+## Structural (2 / 10)
+[1] fact #6 (reference, 2026-10-14, conf 0.95): Maya's small native-plant nursery side business that supplies her own jobs.
+
+Meadowlark is a half-acre native-plant n...
+[2] fact #5 (reference, 2026-10-14, conf 0.95): Public botanical garden redesign; the studio's flagship job this year.
+
+Larkspur Gardens is a twelve-acre municipal b...
+
+## Reflective (0 / 10)
+(none)
+```
+
+`memory search` needs every word to match. `memory context --query` ranks facts that share any of its words, so a plain question works there too.
 
 The sample vault is a fully synthetic corpus (a fictional landscape architect and her studio) that exercises every memory type. See `sample-vault/README.md`.
 
@@ -43,11 +90,11 @@ The sample vault is a fully synthetic corpus (a fictional landscape architect an
 
 Point your AI agent (Claude Code or equivalent) at this repository and tell it to read **AGENTS.md**. That file is written for your agent, not for you: it walks the agent through verifying the kit, mapping it onto your own vault layout, adopting the memory-file format, seeding, and wiring retrieval into your session startup. The design requirement is that it upgrades *your* build, whatever your layout looks like; nothing assumes the original author's vault.
 
-Configuration is four environment variables: `COS_VAULT` (your vault root), and optionally `COS_STATE_DIR`, `COS_DB`, `COS_MEMORY_DIR` to relocate state, database, and memory corpus.
+Configuration is environment variables. `COS_VAULT` is your vault root (default `~/cos-vault`). The rest are optional: `COS_STATE_DIR` for the database and backups (default `<vault>/_state`), `COS_DB` for the SQLite file (default `<state>/memory.db`), `COS_MEMORY_DIR` for the memory files to seed (default `<vault>/memory`), `COS_CYCLES_DIR` for 12-week cycle plans (default `<vault>/cycles`), `COS_CAPABILITY_REGISTRY` for the capability registry (default `capability/registry.json` in this repo), and `COS_HOOK_STATE_DIR` for the effort governor's counter files (default your system temp folder).
 
 ## Design principles
 
-These are the rules the parent system converged on after months of daily use and a formal architecture review. The engine embodies the first half; the rest describe the system it belongs to.
+These are the rules my own system converged on after months of daily use and a formal architecture review. The engine embodies the first half; the rest describe the system it belongs to.
 
 1. **Routine is code, judgment is model.** Anything deterministic (state, indexes, summaries, checks) is a script; the model spends its judgment on what scripts can't do.
 2. **State is computed, not recalled.** The assistant never asserts system state from memory; it runs the command that computes it.
@@ -130,3 +177,11 @@ This repository releases in stages, each re-authored clean and reviewed on its o
 ## Status
 
 Every probe in `probes/` passes (`python -m cos regress` reports the full count with zero failures). The sample vault seeds end to end and re-seeds idempotently. The codebase was re-authored clean-room, allow-list only, to keep personal data out.
+
+## Prior art
+
+The 12-week cycle in stage 8 follows the pattern in *The 12 Week Year* by Brian P. Moran and Michael Lennington (Wiley, 2013): a twelve-week planning horizon scored weekly on the actions you control.
+
+## Who made this
+
+Built by Joshua Polasky, a strategy and operations consultant. Business first, then AI. If you're an owner or leader who wants help figuring out where AI fits in your business, get in touch: joshua.polasky@gmail.com or [LinkedIn](https://linkedin.com/in/joshuapolasky).

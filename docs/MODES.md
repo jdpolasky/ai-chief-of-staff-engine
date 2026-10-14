@@ -83,7 +83,9 @@ mechanized should be backed by a hook. The clearest example: a contract can say 
 edit the owner's protected files," and the protect-surfaces hook in `docs/ENFORCEMENT.md`
 makes that true mechanically, no matter which mode the assistant thinks it is in. Read
 the contract as the intent and the hook as the floor. Where they overlap, the hook wins,
-because a hook cannot be talked around and prose can.
+because the hook runs whether or not the model remembers the rule. It covers Edit, Write,
+and NotebookEdit only, and a shell command can still write a protected file, so keep the
+Must-never line in the contract too.
 
 ## Real limits
 
