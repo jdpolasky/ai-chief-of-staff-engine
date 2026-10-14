@@ -41,7 +41,7 @@ A properly shaped project fact:
 python -m cos memory add fact --json '{
   "content": "Maya locked the south-slope meadow palette at the June board meeting; entry-path survey still pending before the grade can be finalized.",
   "category": "project",
-  "subject_type": "project",
+  "subject_type": "system",
   "subject_id": "larkspur_gardens",
   "source": "session_log",
   "source_session": 47,
@@ -56,7 +56,8 @@ Field notes, all enforced by the write contract:
 - `category`: one of `person`, `project`, `decision`, `preference`, `commitment`,
   `incident`, `capability`, `reference`. Pick the one that fits.
 - `subject_type`: one of `person`, `project`, `system`, `place`, `concept`, `tool`,
-  or null. For a project fact, `project`.
+  or null. For a project fact, `system`. That's what the loader gives `project_*.md`
+  files, so `retrieve --subject-type system` finds both.
 - `subject_id`: the stable handle for the subject, for example `larkspur_gardens`.
   Reuse the same id you would retrieve by, so the fact joins the existing thread.
 - `source`: where this came from. For a fact learned in a live session, use

@@ -1,12 +1,14 @@
 # AI Chief of Staff: Memory Engine and Operating Loop
 
-[![regress](https://github.com/jdpolasky/ai-chief-of-staff-engine/actions/workflows/regress.yml/badge.svg)](https://github.com/jdpolasky/ai-chief-of-staff-engine/actions/workflows/regress.yml)
+> Built by [Joshua Polasky](https://github.com/jdpolasky), a strategy and operations consultant. Business first, then AI. [How I work with businesses](https://github.com/jdpolasky/jdpolasky/blob/main/HOW-I-WORK.md) · joshua.polasky@gmail.com
 
-*Last verified September 2026. Eight staged releases, v0.1.0 through v0.8.0, each with notes on the Releases page.*
+[![regress](https://github.com/jdpolasky/ai-chief-of-staff-engine/actions/workflows/regress.yml/badge.svg)](https://github.com/jdpolasky/ai-chief-of-staff-engine/actions/workflows/regress.yml) [![GitHub stars](https://img.shields.io/github/stars/jdpolasky/ai-chief-of-staff-engine)](https://github.com/jdpolasky/ai-chief-of-staff-engine/stargazers)
+
+*Last verified October 2026. Eight staged releases, v0.1.0 through v0.8.0, each with notes on the Releases page.*
 
 A working, tested memory engine for an AI chief of staff: a fact store with full write history that your AI assistant reads at the start of every session and writes to as it learns who you are, what you're working on, and how you want to be helped.
 
-This is a working memory engine and operating loop for an AI chief of staff. I built it as the memory layer for my own system, then re-built it clean for public use. My own daily system never adopted it and still runs on plain markdown. Your AI can install it, adapt it to your vault, and prove the install worked, all without you writing code.
+I built it as the memory layer for my own system, then re-built it clean for public use. My own daily system never adopted it and still runs on plain markdown. Your AI can install it, adapt it to your vault, and prove the install worked, all without you writing code.
 
 The memory engine is stage one. Seven further stages build the operating loop on top of it: session commands, enforcement hooks, an incident logbook, self-tending rituals, a capability registry, mode contracts, and 12-week cycles. All eight are shipped. The stages that add code (1, 3, 5, 6, and 8) each come with probes; stages 2, 4, and 7 are prose commands and markdown, with no code to probe. My working system is published separately as [chief-of-staff-2](https://github.com/jdpolasky/chief-of-staff-2), and it runs on plain markdown without this engine.
 
@@ -29,10 +31,10 @@ Requires Python 3.10 or newer.
 git clone https://github.com/jdpolasky/ai-chief-of-staff-engine.git
 cd ai-chief-of-staff-engine
 pip install -e .
-
-# Prove the kit works as shipped
 python -m cos regress
 ```
+
+The last line proves the kit works as shipped.
 
 `pip install -e .` installs the engine, its two dependencies, and a `cos` command. Use the editable install (`-e`). The `capability/`, `cycles/`, and `probes/` folders sit outside the Python package, so a regular `pip install .` leaves them behind, and `cos capability` and `cos regress` look for theirs in the repo folder. `python -m cos --version` prints the installed version.
 
@@ -88,13 +90,13 @@ The sample vault is a fully synthetic corpus (a fictional landscape architect an
 
 ## Install it for yourself
 
-Point your AI agent (Claude Code or equivalent) at this repository and tell it to read **AGENTS.md**. That file is written for your agent, not for you: it walks the agent through verifying the kit, mapping it onto your own vault layout, adopting the memory-file format, seeding, and wiring retrieval into your session startup. The design requirement is that it upgrades *your* build, whatever your layout looks like; nothing assumes the original author's vault.
+Point your AI agent (Claude Code or equivalent) at this repository and tell it to read **AGENTS.md**. That file is written for your agent to follow: it walks the agent through verifying the kit, mapping it onto your own vault layout, adopting the memory-file format, seeding, and wiring retrieval into your session startup. The design requirement is that it upgrades *your* build, whatever your layout looks like; nothing assumes the original author's vault.
 
 Configuration is environment variables. `COS_VAULT` is your vault root (default `~/cos-vault`). The rest are optional: `COS_STATE_DIR` for the database and backups (default `<vault>/_state`), `COS_DB` for the SQLite file (default `<state>/memory.db`), `COS_MEMORY_DIR` for the memory files to seed (default `<vault>/memory`), `COS_CYCLES_DIR` for 12-week cycle plans (default `<vault>/cycles`), `COS_CAPABILITY_REGISTRY` for the capability registry (default `capability/registry.json` in this repo), and `COS_HOOK_STATE_DIR` for the effort governor's counter files (default your system temp folder).
 
 ## Design principles
 
-These are the rules my own system converged on after months of daily use and a formal architecture review. The engine embodies the first half; the rest describe the system it belongs to.
+These are the rules my own system converged on after months of daily use. The engine embodies the first half; the rest describe the system it belongs to. These mechanisms came out of a private build that grew too big, so take them piece by piece and only what you need.
 
 1. **Routine is code, judgment is model.** Anything deterministic (state, indexes, summaries, checks) is a script; the model spends its judgment on what scripts can't do.
 2. **State is computed, not recalled.** The assistant never asserts system state from memory; it runs the command that computes it.
@@ -161,7 +163,7 @@ docs/                 operating rules + a guide per stage (session loop, enforce
 AGENTS.md             instructions your AI reads to install and adapt the kit
 ```
 
-## Roadmap
+## Stages
 
 This repository releases in stages, each re-authored clean and reviewed on its own.
 
