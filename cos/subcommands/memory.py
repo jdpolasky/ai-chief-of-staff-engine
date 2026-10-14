@@ -33,7 +33,7 @@ from cos.memory.context import (
 from cos.memory.jsonl import jsonl_append
 from cos.memory.loader import DEFAULT_MEMORY_DIR, cmd_seed_memory_files
 from cos.memory.migrate import apply_schema
-from cos.memory.writers import insert_episode, insert_fact
+from cos.memory.writers import _now, insert_episode, insert_fact
 
 Kind = Literal["fact", "episode"]
 
@@ -103,6 +103,18 @@ def _print_jsonl(records) -> None:
 
 # --- CLI wrappers ---
 
+def _fill_fact_timestamps(record: dict[str, Any]) -> None:
+    """Stamp tx_from (now) and valid_from (today) on a fact when missing.
+
+    Runs before validation so the caller never has to supply a timestamp.
+    A value the caller did supply is left alone for the contract to check.
+    """
+    if not record.get("tx_from"):
+        record["tx_from"] = _now()
+    if not record.get("valid_from"):
+        record["valid_from"] = record["tx_from"][:10]
+
+
 def cmd_add(args: argparse.Namespace) -> int:
     try:
         record = json.loads(args.json)
@@ -113,6 +125,8 @@ def cmd_add(args: argparse.Namespace) -> int:
         print(f"cos memory add: --json must be a JSON object; got {type(record).__name__}",
               file=sys.stderr)
         return 2
+    if args.kind == "fact":
+        _fill_fact_timestamps(record)
 
     db_path = Path(args.db) if args.db else DEFAULT_DB_PATH
     apply_schema(db_path)  # idempotent
