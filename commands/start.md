@@ -17,17 +17,19 @@ working on, and how they want to be helped. Run these commands and read the outp
 before you say anything. Every flag below exists in the shipped CLI; do not invent
 flags.
 
-Pull a tiered briefing keyed to the day:
+Pull the standing facts, with no query:
 
 ```
-python -m cos memory context --query "today" --limit 8
+python -m cos memory context --tiers structural --limit 20
 ```
 
-`memory context` returns three tiers: operational (recent, relevant facts),
-structural (high-confidence standing facts), and reflective (older facts that still
-carry weight). Read all three. If the operational tier is thin, run it again with a
-query built from whatever the owner opened the session talking about, for example
-`--query "larkspur"` for a specific project.
+The structural tier returns the high-confidence standing facts in a fixed order:
+operating corrections (feedback files, stored as `preference`) first, then facts
+about the owner (`capability`), then reference and project facts (`reference`),
+then commitments. Read all of it. When the owner opens the session talking about
+something specific, run a second pull with a query built from their words, for
+example `--query "larkspur"` for a specific project. A query matches words in the
+fact text, so use words the facts would contain.
 
 Pull the owner's profile and working-style facts so the briefing is shaped to them:
 
@@ -51,23 +53,14 @@ python -m cos memory retrieve --subject larkspur_gardens --subject-type system
 ```
 
 There is no single "list all active projects" flag in the engine. To see what
-projects exist, either read the memory index (`MEMORY.md` in the memory corpus,
-which lists every memory by type) or search:
+projects exist, read the memory index (`MEMORY.md` in the memory corpus, which
+lists every memory by type). Search matches words in the fact text, not the memory
+type, so `memory search "project"` finds only facts that use the word "project".
+Retrieve the projects the owner is currently moving.
 
-```
-python -m cos memory search "project"
-```
-
-Then retrieve the ones the owner is currently moving.
-
-Pull the operating corrections (feedback) so you honor them today:
-
-```
-python -m cos memory search "feedback" --kind fact
-```
-
-Feedback facts carry no subject, so they come back through search rather than
-`retrieve --subject`. Read them; they are how the owner has corrected you before.
+The operating corrections (feedback) already came back at the top of the
+structural pull above. Feedback facts carry no subject, so `retrieve --subject`
+won't find them. Read them; they are how the owner has corrected you before.
 
 <!-- Stage 8: 12-week cycle scoreboard. Keep this block self-contained. -->
 ### Step 1b: pull the active 12-week cycle
