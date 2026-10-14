@@ -4,7 +4,7 @@
 
 *Last verified September 2026. Eight staged releases, v0.1.0 through v0.8.0, each with notes on the Releases page.*
 
-A working, tested memory engine for an AI chief of staff: a bitemporal fact store your AI assistant reads at the start of every session and writes to as it learns who you are, what you're working on, and how you want to be helped.
+A working, tested memory engine for an AI chief of staff: a fact store with full write history that your AI assistant reads at the start of every session and writes to as it learns who you are, what you're working on, and how you want to be helped.
 
 This is a working memory engine and operating loop for an AI chief of staff. I built it as the memory layer for my own system, then re-built it clean for public use. My own daily system never adopted it and still runs on plain markdown. Your AI can install it, adapt it to your vault, and prove the install worked, all without you writing code.
 
@@ -14,11 +14,11 @@ The memory engine is stage one. Seven further stages build the operating loop on
 
 Most AI-assistant memory is a text file that grows until it rots. This engine treats memory as data:
 
-- **Fact store with history** (SQLite + FTS5). The engine keeps transaction-time history: each fact records when the system wrote it (`tx_from`) and, once a writer replaces or retracts it, when that belief ended (`tx_to`). `memory context --as-of` uses this to show what the system believed at an earlier moment. Each fact also stores `valid_from` and `valid_to`, the dates it was true in the world. Those are kept for your own use; no query filters on them.
-- **What adds and what replaces.** The markdown loader only adds facts. Editing or deleting a memory file and re-seeding leaves the old fact in the database. `supersede_fact` and `retract_fact` in `cos/memory/writers.py` exist for writers that call them; there's no CLI command for either. `memory search` and `memory retrieve` skip retracted facts but still return superseded ones. `memory context` returns current beliefs only.
+- **Fact store with history** (SQLite + FTS5). The engine keeps transaction-time history: each fact records when the system wrote it (`tx_from`) and, once a writer replaces or retracts it, when that belief ended (`tx_to`). `memory context --as-of` shows the facts the system still held as current at an earlier moment. Facts retracted since then don't appear. Each fact also stores `valid_from` and `valid_to`, the dates it was true in the world. Those are kept for your own use; no query filters on them.
+- **What adds and what replaces.** The markdown loader only adds facts. Editing or deleting a memory file and re-seeding leaves the old fact in the database. `supersede_fact` and `retract_fact` in `cos/memory/writers.py` exist for writers that call them; there's no CLI command for either. `memory search` and `memory retrieve` skip retracted facts but still return superseded ones. Without `--as-of`, `memory context` returns current beliefs only.
 - **Write contracts.** Every write is validated against a JSON Schema contract before it touches the database. Malformed memory is rejected loudly at the gate, not discovered later.
 - **Three-tier context retrieval.** `python -m cos memory context --query "<words>"` returns a ranked, deduplicated briefing (pinned structural facts, high-relevance matches, background) sized for an AI context window.
-- **Markdown loader.** Your memory corpus stays human-readable markdown with YAML frontmatter. The loader seeds it into the database idempotently, so re-runs are no-ops. Law files (`laws_*.md`) split into one fact per section, and none of their text is lost. Every other memory file becomes one fact, cut at 1,950 characters, so keep those files short.
+- **Markdown loader.** Your memory corpus stays human-readable markdown with YAML frontmatter. The loader seeds it into the database idempotently, so re-runs are no-ops. Law files (`laws_*.md`) split into one fact per section, and long sections split into parts, so no section is cut short. The `## Provenance` footer isn't loaded. Every other memory file becomes one fact, cut at 1,950 characters, so keep those files short.
 - **Verification harness.** `python -m cos regress` runs the probe suite. Each stage that adds code (stages 1, 3, 5, 6, and 8) ships with probes for the commands it adds. Each probe runs with the engine's paths pointed at a fresh temp folder, so the suite never writes to your vault. If your AI ports or adapts this engine, the harness tells you whether the port is real.
 
 ## Quickstart (five minutes)
@@ -165,7 +165,7 @@ AGENTS.md             instructions your AI reads to install and adapt the kit
 
 This repository releases in stages, each re-authored clean and reviewed on its own.
 
-- **Stage 1, the runnable memory core (shipped):** the bitemporal fact store, write contracts, three-tier retrieval, the markdown loader, and the verification harness.
+- **Stage 1, the runnable memory core (shipped):** the fact store with write history, write contracts, three-tier retrieval, the markdown loader, and the verification harness.
 - **Stage 2, the session loop (shipped):** the `/start`, `/sync`, and `/wrap` commands and their docs, built on top of the memory core.
 - **Stage 3, the enforcement bundle (shipped):** three Claude Code hooks that enforce the operating rules mechanically (the propose/commit write gate, the effort governor, and an output linter), their JSON config, and a probe that covers every branch. See [`docs/ENFORCEMENT.md`](docs/ENFORCEMENT.md).
 - **Stage 4, the incident logbook (shipped):** a failure-capture system that logs failures as data and mines them for repeats. Two commands (`/incident` to capture, `/incident-review` to mine and graduate patterns into rules), the incidents folder, and the doc. Markdown and prose only, no new code. See [`docs/LOGBOOK.md`](docs/LOGBOOK.md).
@@ -180,7 +180,7 @@ Every probe in `probes/` passes (`python -m cos regress` reports the full count 
 
 ## Prior art
 
-The 12-week cycle in stage 8 follows the pattern in *The 12 Week Year* by Brian P. Moran and Michael Lennington (Wiley, 2013): a twelve-week planning horizon scored weekly on the actions you control.
+The 12-week cycle in stage 8 follows the pattern in *The 12 Week Year* by Brian P. Moran and Michael Lennington (Wiley, 2013): a planning year shortened to twelve weeks.
 
 ## Who made this
 

@@ -269,7 +269,8 @@ def retract_fact(
     Sets facts.retracted = 1 and facts.tx_to = now. Logs a 'retract' row in
     fact_history with new_state = NULL. Every read path filters on
     `retracted = 0`, including `context --as-of`, so a retracted fact drops out
-    of all reads; its prior state survives only in fact_history.
+    of all reads. The row stays in the facts table flagged retracted = 1, and
+    its prior state is also in fact_history, but no read command returns it.
     """
     prev = _snapshot(conn, fact_id)
     if prev is None:

@@ -458,7 +458,8 @@ def register(subparsers):
                        help="optional subject_type narrowing (with or without subject)")
     p_ctx.add_argument("--query", default=None,
                        help="optional free-text query; facts and episodes sharing any of "
-                            "its words are ranked by relevance")
+                            "its words are returned (operational and structural "
+                            "results ranked by relevance)")
     p_ctx.add_argument("--tiers", default=None,
                        help="comma-separated tier selection (default: all three)")
     p_ctx.add_argument("--limit", type=int, default=10,
@@ -479,7 +480,7 @@ def register(subparsers):
                        type=int, default=90,
                        help="reflective half-life in days (default 90)")
     p_ctx.add_argument("--as-of", dest="as_of", default=None,
-                       help="bitemporal as-of timestamp ('YYYY-MM-DD HH:MM:SS.fff')")
+                       help="as-of timestamp ('YYYY-MM-DD HH:MM:SS.fff')")
     p_ctx.add_argument("--db", default=None,
                        help=f"path to memory.db (default: {DEFAULT_DB_PATH})")
     p_ctx.set_defaults(func=cmd_context)

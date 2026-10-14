@@ -2,7 +2,7 @@
 
 You are an AI agent. Your owner pointed you at this repository because they want the memory engine installed and adapted to their own system. This file is your work order. Read it fully before acting.
 
-The outcome you are responsible for: your owner's vault gains a verified, idempotent, bitemporal memory store that you (and future sessions of you) seed from markdown and query at session start. The kit must be adapted to THEIR layout. Nothing here assumes the original author's vault structure, paths, or content.
+The outcome you are responsible for: your owner's vault gains a verified, idempotent memory store with full write history that you (and future sessions of you) seed from markdown and query at session start. The kit must be adapted to THEIR layout. Nothing here assumes the original author's vault structure, paths, or content.
 
 ## Ground rules
 
@@ -96,7 +96,7 @@ Minimum viable integration, in order of value:
 
 1. **Session start:** run `python -m cos memory context --tiers structural --limit 20` for the standing facts, then `python -m cos memory context --query "<words from the session's opening topic>"`, and fold both into your working context.
 2. **When the owner corrects you durably:** write a `feedback_*.md` memory file (propose it first), then re-run seed.
-3. **When project state changes durably:** update or add `project_*.md` and re-seed. The loader only adds facts: re-seeding an edited file adds the new version and leaves the old fact in place, and `memory search` and `memory retrieve` return both. To close out the old one, call `supersede_fact` or `retract_fact` from `cos/memory/writers.py` with its id (there is no CLI command for either). `memory context` shows only facts that haven't been superseded or retracted.
+3. **When project state changes durably:** update or add `project_*.md` and re-seed. The loader only adds facts: re-seeding an edited file adds the new version and leaves the old fact in place, and `memory search` and `memory retrieve` return both. To close out the old one, call `supersede_fact` or `retract_fact` from `cos/memory/writers.py` with its id (there is no CLI command for either). Without `--as-of`, `memory context` shows only facts that haven't been superseded or retracted.
 4. **Periodically:** re-run `python -m cos regress` after any engine update, and re-run seed after any corpus change. Both are safe to run any time; that is the point of idempotency.
 
 Direct writes (`cos memory add`) exist for programmatic use; they pass through the same validation contracts. For owner-authored memory, prefer the file-then-seed path so the corpus stays human-readable.
