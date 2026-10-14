@@ -1,5 +1,5 @@
 {
-  "_about": "Capability registry: owner-curated routing memory. The agent consults this BEFORE picking a tool for a task class, so a lesson learned once (the route that works, the ladder of fallbacks, the dead ends) is not re-discovered at the cost of a failed attempt every session. Owner-curated: the agent proposes changes after real failures; the owner commits them. See docs/CAPABILITY.md.",
+  "_about": "Capability registry: owner-curated routing memory. The agent consults this BEFORE picking a tool for a task class, so a lesson learned once (the route that works, the ladder of fallbacks, the dead ends) is not re-discovered at the cost of a failed attempt every session. Owner-curated: the agent proposes changes after real failures; the owner commits them. See docs/CAPABILITY.md. The task classes, routes, and retest dates below are examples; replace them with your own.",
   "task_classes": [
     {
       "task_class": "vault-file-operations",
