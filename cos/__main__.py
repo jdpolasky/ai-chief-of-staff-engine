@@ -11,6 +11,7 @@ import importlib
 import pkgutil
 import sys
 
+from . import __version__
 from . import subcommands as _subcmd_pkg
 
 
@@ -32,6 +33,8 @@ def build_parser():
         description="A portable memory engine for an AI assistant. "
                     "Subcommands live in cos.subcommands.",
     )
+    parser.add_argument("--version", action="version",
+                        version=f"cos {__version__}")
     sub = parser.add_subparsers(dest="subcommand", metavar="SUBCOMMAND")
     sub.required = True
     for name, module in discover_subcommands():

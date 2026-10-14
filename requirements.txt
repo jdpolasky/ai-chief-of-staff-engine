@@ -1,2 +1,2 @@
-jsonschema
-pyyaml
+jsonschema>=4
+pyyaml>=6
