@@ -38,9 +38,8 @@ assistant does not argue with you inside a record, does not soften the cause to 
 better, and does not make you fill in fields. It writes what happened, the real cause,
 the cost, and a candidate rule, then stops. Capture first. The analysis waits.
 
-Owners tend to give this folder a saltier name than "incidents," something closer to a
-fuckup log, and the system works exactly the same whichever name you use; the discipline
-is in the capture, not the label.
+Owners often give this folder a blunter name than "incidents." The system works the same
+whichever name you use, since what matters is the capture.
 
 ## The taxonomy is small on purpose
 

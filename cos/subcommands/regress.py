@@ -4,7 +4,9 @@ Discovers `probes/*.py` in the repo root (or a `--probes-dir` override), runs
 each as a subprocess with the current interpreter, and reports pass/fail by
 exit code. Each probe is a standalone, self-contained script: it builds its own
 tempdir fixtures + temp sqlite db, exercises one slice of the engine, and exits
-0 on pass / nonzero on failure (printing a FAIL reason).
+0 on pass / nonzero on failure (printing a FAIL reason). Every probe runs with
+the cos path variables pointed at a fresh temp folder, so a probe that writes
+to a default path (the rejections log, facts.jsonl) never touches your vault.
 
 Per-probe output (stdout/stderr) is captured; on failure the last lines of the
 probe's output are echoed so a red run is diagnosable without re-running. A
@@ -23,8 +25,11 @@ timeout, or no probes found).
 from __future__ import annotations
 
 import argparse
+import os
+import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -51,15 +56,39 @@ def discover_probes(probes_dir: Path, filter_name: str | None = None) -> list[Pa
     return probes
 
 
+def _sandbox_env(sandbox: Path) -> dict[str, str]:
+    """Copy of the current environment with every cos path pointed at `sandbox`.
+
+    A probe that falls through to the default paths (the rejections log, the
+    jsonl backups, the database) then writes into a throwaway folder instead
+    of the user's real vault and state directory.
+    """
+    env = dict(os.environ)
+    vault = sandbox / "vault"
+    state = sandbox / "state"
+    env["COS_VAULT"] = str(vault)
+    env["COS_STATE_DIR"] = str(state)
+    env["COS_DB"] = str(state / "memory.db")
+    env["COS_MEMORY_DIR"] = str(vault / "memory")
+    env["COS_CYCLES_DIR"] = str(vault / "cycles")
+    return env
+
+
 def run_probe(probe_path: Path) -> dict:
-    """Run one probe as a subprocess. Returns a result dict with pass/fail."""
+    """Run one probe as a subprocess. Returns a result dict with pass/fail.
+
+    Each probe runs with COS_VAULT, COS_STATE_DIR, COS_DB, COS_MEMORY_DIR, and
+    COS_CYCLES_DIR pointed at a fresh temp folder, deleted afterward.
+    """
     t0 = time.monotonic()
+    sandbox = Path(tempfile.mkdtemp(prefix="cos_regress_"))
     try:
         proc = subprocess.run(
             [sys.executable, str(probe_path)],
             capture_output=True,
             text=True,
             timeout=TIMEOUT_SEC,
+            env=_sandbox_env(sandbox),
         )
         return {
             "probe": probe_path.name,
@@ -84,6 +113,8 @@ def run_probe(probe_path: Path) -> dict:
             "passed": False,
             "timed_out": True,
         }
+    finally:
+        shutil.rmtree(sandbox, ignore_errors=True)
 
 
 def run(args: argparse.Namespace) -> int:

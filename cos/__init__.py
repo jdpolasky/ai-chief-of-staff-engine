@@ -10,4 +10,4 @@ Paths are configured through environment variables (see cos.config); nothing
 is tied to one machine or user.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.8.0"

@@ -9,8 +9,10 @@ Enforcement moves the rules out of the model's memory and into the harness aroun
 it. A hook is a small script the runtime runs on your behalf at a fixed moment:
 before a tool call, or when the assistant tries to end its turn. The script can
 let the action through or block it. Because the runtime runs it, not the model, a
-hook cannot be forgotten, talked around, or lost to a context window. The rule
-holds whether the model remembers it or not.
+hook doesn't depend on the model remembering the rule, and a long session or a
+fresh context window doesn't drop it. A hook only covers the tools it's wired to,
+though. The protect_surfaces hook here covers Edit, Write, and NotebookEdit, so a
+shell command can still write to a protected file.
 
 This stage ships three hooks, a config file for each, and a probe that proves
 every branch of all three. They are grounded in the official Claude Code hooks
@@ -37,10 +39,9 @@ whether the work is good, only how much of it there has been.
 **output_lint** (runs when the assistant tries to end its turn). This reads the
 assistant's final message and checks it against regex rules you turn on. If a rule
 matches, the stop is blocked and the assistant has to rewrite before it hands the
-turn back. It ships with three example rules (ban the em-dash, flag a suspiciously
-long quote, flag three hedging words stacked in one sentence); all but the
-first are off by default. It is a last-line style check, not a content
-judge.
+turn back. It ships with three example rules (flag an em-dash, flag a suspiciously
+long quote, flag three hedging words stacked in one sentence), all three off by
+default. It is a last-line style check, not a content judge.
 
 ## The fail-open philosophy, and its tradeoff
 
@@ -85,7 +86,8 @@ These are off until you wire them in. Hooks live in your `settings.json` under a
 the hook. The structure below is copied from the official format in the docs page
 linked above. Point the `command` paths at wherever you copied this repo's
 `hooks/` folder; `${CLAUDE_PROJECT_DIR}` expands to your project root, so the
-example uses it.
+example uses it. Each path is wrapped in escaped quotes so a project folder with
+a space in its name still works.
 
 ```json
 {
@@ -96,7 +98,7 @@ example uses it.
         "hooks": [
           {
             "type": "command",
-            "command": "python ${CLAUDE_PROJECT_DIR}/hooks/protect_surfaces.py"
+            "command": "python \"${CLAUDE_PROJECT_DIR}/hooks/protect_surfaces.py\""
           }
         ]
       },
@@ -105,7 +107,7 @@ example uses it.
         "hooks": [
           {
             "type": "command",
-            "command": "python ${CLAUDE_PROJECT_DIR}/hooks/effort_governor.py"
+            "command": "python \"${CLAUDE_PROJECT_DIR}/hooks/effort_governor.py\""
           }
         ]
       }
@@ -116,7 +118,7 @@ example uses it.
         "hooks": [
           {
             "type": "command",
-            "command": "python ${CLAUDE_PROJECT_DIR}/hooks/output_lint.py"
+            "command": "python \"${CLAUDE_PROJECT_DIR}/hooks/output_lint.py\""
           }
         ]
       }
@@ -172,9 +174,8 @@ Two checks, both worth doing after you wire the hooks in.
 
 ## Default posture
 
-Nothing here runs until you add it to your `settings.json`, and the lint
-rules beyond the em-dash arrive turned off. Turn on
-what you actually need. The protect hook is worth it the moment you have a file
+Nothing here runs until you add it to your `settings.json`, and every lint
+rule arrives turned off. Turn on what you actually need. The protect hook is worth it the moment you have a file
 you never want auto-edited; the governor is worth it the first time a session runs
 away from you; the lint is worth it when you have a style line you keep having to
 repeat. Start with one, prove it, add the next.

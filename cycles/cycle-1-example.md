@@ -7,6 +7,8 @@ status: active
 
 # Cycle 1 — Autumn pipeline and nursery stock
 
+*Example: a filled cycle for the fictional persona in the sample vault. The dates and scores are illustrative.*
+
 ## The one sentence
 
 Build a full autumn workload now, so the studio is not scrambling for paid work

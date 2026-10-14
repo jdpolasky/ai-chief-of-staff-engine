@@ -4,7 +4,7 @@
   "title": "fact write contract",
   "description": "Validated by cos.braid.validate.validate_braid(record, 'fact') before any cos.memory write. Rejections raise BraidRejection and are logged to <state>/braid_rejections.log.",
   "type": "object",
-  "required": ["content", "category", "source", "valid_from", "tx_from"],
+  "required": ["content", "category", "source", "valid_from"],
   "additionalProperties": false,
   "properties": {
     "content": {
@@ -64,7 +64,7 @@
     "tx_from": {
       "type": "string",
       "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}$",
-      "description": "ms-precision timestamp (YYYY-MM-DD HH:MM:SS.mmm), matches cos.memory.writers._now() output"
+      "description": "ms-precision timestamp (YYYY-MM-DD HH:MM:SS.mmm), matches cos.memory.writers._now() output. Optional: cos memory add and the writers stamp the current time when it is missing."
     },
     "supersedes_id": {
       "type": ["integer", "null"],

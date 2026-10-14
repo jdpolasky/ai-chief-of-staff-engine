@@ -46,8 +46,7 @@ python -m cos memory add fact --json '{
   "source": "session_log",
   "source_session": 47,
   "confidence": 0.9,
-  "valid_from": "2026-06-12",
-  "tx_from": "2026-06-12 15:30:00.000"
+  "valid_from": "2026-06-12"
 }'
 ```
 
@@ -67,9 +66,9 @@ Field notes, all enforced by the write contract:
   provenance.
 - `confidence`: 0.0 to 1.0. A thing the owner stated plainly is high; an
   inference is lower.
-- `valid_from`: the date the fact became true in the world, `YYYY-MM-DD`.
-- `tx_from`: the moment you are recording it, `YYYY-MM-DD HH:MM:SS.mmm` (millisecond
-  precision). Use the current timestamp.
+- `valid_from`: the date the fact became true in the world, `YYYY-MM-DD`. If you
+  leave it out, `memory add` uses today's date.
+- `tx_from`: leave it out. `memory add` stamps the moment of recording itself.
 
 A correction the owner gave you is a `preference` fact with no subject:
 
@@ -79,8 +78,7 @@ python -m cos memory add fact --json '{
   "category": "preference",
   "source": "session_log",
   "confidence": 0.85,
-  "valid_from": "2026-06-12",
-  "tx_from": "2026-06-12 15:31:00.000"
+  "valid_from": "2026-06-12"
 }'
 ```
 

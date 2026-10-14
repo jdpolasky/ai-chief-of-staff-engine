@@ -12,7 +12,10 @@ argparse Namespaces, capturing stdout/stderr, and parsing the JSONL/text output:
             --subject-type returns every type for the subject (the else branch);
             neither --id nor --subject -> exit 1.
   search:   fact-only hit; episode-only hit; a shared term hits both kinds;
-            --kind restricts; a no-hit term returns empty.
+            --kind restricts; a no-hit term returns empty; free text with an
+            apostrophe, question mark, comma, or uppercase AND/OR/NOT does
+            not crash; every word must match (AND); a word-free query
+            returns empty.
   stats:    counts facts/episodes/rejections; retracted facts drop out of
             retrieve, search, and the stats facts count; a present rejections
             log is line-counted.
@@ -196,6 +199,32 @@ def main() -> int:
             # no hit
             rc, out, _ = run_cmd(cmd_search, query="zzznotaword", kind=None, db=str(db_path))
             check(not out.strip(), f"search no hit: expected empty, got {out!r}")
+
+            # free text that used to crash FTS5; each must run and find fact_a
+            # An apostrophe splits a word ("what's" is the words what + s), and
+            # uppercase AND/OR/NOT are plain words that must also match, so
+            # these only have to run cleanly.
+            for q in ("what's", "budget AND", "OR budget", "NOT budget"):
+                rc, out, err = run_cmd(cmd_search, query=q, kind=None, db=str(db_path))
+                check(rc == 0 and not err, f"search {q!r}: rc={rc} err={err!r}")
+            for q in ("budget?", "budget, Larkspur", "Larkspur budget capped"):
+                rc, out, err = run_cmd(cmd_search, query=q, kind="fact", db=str(db_path))
+                check(rc == 0 and not err, f"search {q!r}: rc={rc} err={err!r}")
+                got_ids = [r["id"] for r in parse_jsonl(out)]
+                check(got_ids == [ids["a"]],
+                      f"search {q!r}: expected only fact_a, got {got_ids}")
+
+            # every word must match: a natural-language question whose words
+            # are not all present returns nothing, and does not crash
+            rc, out, err = run_cmd(cmd_search, query="what is the Larkspur budget?",
+                                   kind=None, db=str(db_path))
+            check(rc == 0 and not err and not out.strip(),
+                  f"search AND semantics: expected empty, got rc={rc} out={out!r} err={err!r}")
+
+            # word-free query: empty result, exit 0
+            rc, out, err = run_cmd(cmd_search, query="?!", kind=None, db=str(db_path))
+            check(rc == 0 and not out.strip(),
+                  f"search word-free: expected empty rc=0, got rc={rc} out={out!r}")
 
             # stats with data, no rejections file
             rc, out, _ = run_cmd(cmd_stats, db=str(db_path),

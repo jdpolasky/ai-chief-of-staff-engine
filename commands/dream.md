@@ -79,10 +79,13 @@ so the change reaches retrieval:
 python -m cos memory seed
 ```
 
-Writing a new `feedback_*.md` or editing a memory file is a corpus change, so it
-needs a re-seed; retiring a note (moving it out of the live corpus) needs one
-too, so the dropped fact stops surfacing. For anything the owner rejects, record
-nothing. A reject leaves no trace; that is the point of propose/commit.
+Writing a new `feedback_*.md` or editing a memory file is a corpus change, so
+re-seed to add it. The loader only adds facts. After an edit, the old version of
+the fact stays in the database next to the new one, and retiring a note (moving
+it out of the live corpus) leaves its fact in place too. To stop an old fact
+surfacing, call `retract_fact` (or `supersede_fact`, for a replacement) from
+`cos/memory/writers.py` with its id; there is no CLI command for either. For
+anything the owner rejects, record nothing. A reject leaves no trace; that is the point of propose/commit.
 
 ## The one-screen cap
 

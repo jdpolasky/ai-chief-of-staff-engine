@@ -8,11 +8,14 @@ CLI surface (cmd_context, default human format):
   - `context <subject>` emits three labeled tier sections, headers of the form
     '## <Tier> (n / limit)', exit 0.
 
-FTS query sanitization (cos.memory.context):
-  - _sanitize_fts_query maps FTS5-special chars (/, -, parens, colon) to spaces
-    and passes None through.
-  - retrieve_context does not crash on FTS-hostile queries (slash / hyphen /
-    paren) and still surfaces the relevant fact for the sanitized tokens.
+Safe FTS queries (cos.memory.context.fts_match_query):
+  - free text becomes quoted word tokens joined with OR (context) or AND
+    (search); None and word-free input give None.
+  - retrieve_context does not crash on FTS-hostile queries (slash, hyphen,
+    paren, apostrophe, question mark, comma, uppercase AND/OR/NOT) and still
+    surfaces the relevant fact.
+  - a multi-word natural-language question finds a fact that shares only some
+    of its words (OR semantics).
 
 Self-contained: tempdir + temp sqlite db via apply_schema. Exits 0 on pass;
 nonzero with a printed FAIL reason. No pytest dependency.
@@ -35,7 +38,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from cos.memory.context import (  # noqa: E402
-    ContextOptions, _sanitize_fts_query, merge_hits, retrieve_context,
+    ContextOptions, fts_match_query, merge_hits, retrieve_context,
 )
 from cos.memory.migrate import apply_schema  # noqa: E402
 from cos.memory.writers import insert_episode, insert_fact  # noqa: E402
@@ -79,19 +82,25 @@ def run_ctx(args):
     return rc, out.getvalue(), err.getvalue()
 
 
-def assert_unit_sanitizer() -> None:
+def assert_unit_match_query() -> None:
     cases = [
-        ("Q3 5/05 launch notes", "Q3 5 05 launch notes"),
-        ("issue-1", "issue 1"),
-        ("Apollo (Phase II)", "Apollo  Phase II "),
-        ("urn:li:activity:74575", "urn li activity 74575"),
-        ("Plain query", "Plain query"),
-        (None, None),
+        ("Q3 5/05 launch", "or", '"Q3" OR "5" OR "05" OR "launch"'),
+        ("issue-1", "and", '"issue" AND "1"'),
+        ("Apollo (Phase II)", "or", '"Apollo" OR "Phase" OR "II"'),
+        ("urn:li:activity:74575", "and", '"urn" AND "li" AND "activity" AND "74575"'),
+        ("what's", "and", '"what" AND "s"'),
+        ("flagship?", "or", '"flagship"'),
+        ("bed, drainage", "and", '"bed" AND "drainage"'),
+        ("NOT", "or", '"NOT"'),
+        ("cats AND dogs OR NOT", "and", '"cats" AND "AND" AND "dogs" AND "OR" AND "NOT"'),
+        ("?!,", "or", None),
+        ("", "and", None),
+        (None, "or", None),
     ]
-    for inp, expected in cases:
-        got = _sanitize_fts_query(inp)
+    for inp, mode, expected in cases:
+        got = fts_match_query(inp, mode)
         check(got == expected,
-              f"_sanitize_fts_query({inp!r}) = {got!r}, expected {expected!r}")
+              f"fts_match_query({inp!r}, {mode!r}) = {got!r}, expected {expected!r}")
 
 
 def assert_cli_default(sandbox: Path) -> None:
@@ -169,6 +178,33 @@ def assert_fts_hostile_queries(sandbox: Path) -> None:
             retrieve_context(conn, opts3)
         except sqlite3.OperationalError as e:
             raise ProbeFail(f"paren query raised: {e}")
+
+        # apostrophe, question mark, comma, uppercase operators, and a
+        # natural-language question: none may crash, and each must find the
+        # drainage fact through the words it shares with it.
+        for q in ("what's the drainage fix?",
+                  "drainage, verification",
+                  "drainage AND",
+                  "OR drainage",
+                  "NOT drainage",
+                  "did the drainage fix hold after the storm last week"):
+            opts_q = ContextOptions(query=q,
+                                    tiers=("operational", "structural", "reflective"),
+                                    limit=5)
+            try:
+                by_tier_q = retrieve_context(conn, opts_q)
+            except sqlite3.OperationalError as e:
+                raise ProbeFail(f"query {q!r} raised: {e}")
+            merged_q = merge_hits(by_tier_q, 5)
+            check(any("drainage" in (h.record.get("content") or "") for h in merged_q),
+                  f"query {q!r}: expected the drainage fact in merged, got "
+                  f"{[h.record.get('content') for h in merged_q]}")
+
+        # a word-free query is treated as no query (no crash, recency order)
+        try:
+            retrieve_context(conn, ContextOptions(query="?", limit=5))
+        except sqlite3.OperationalError as e:
+            raise ProbeFail(f"word-free query raised: {e}")
     finally:
         conn.close()
 
@@ -176,7 +212,7 @@ def assert_fts_hostile_queries(sandbox: Path) -> None:
 def main() -> int:
     sandbox = Path(tempfile.mkdtemp(prefix="probe_context_"))
     try:
-        assert_unit_sanitizer()
+        assert_unit_match_query()
         assert_cli_default(sandbox)
         assert_fts_hostile_queries(sandbox)
     except ProbeFail as e:
@@ -190,7 +226,7 @@ def main() -> int:
     finally:
         shutil.rmtree(sandbox, ignore_errors=True)
 
-    print("PASS: probe_context  three-tier CLI headers + FTS sanitization")
+    print("PASS: probe_context  three-tier CLI headers + safe FTS queries")
     return 0
 
 

@@ -45,25 +45,37 @@ PINNED_CATEGORIES: tuple[str, ...] = (
     "preference", "capability", "reference", "commitment",
 )
 
-# Characters FTS5's MATCH parser treats as syntax-significant. Replaced with
-# spaces before binding to keep user-supplied query strings safe. FTS5's
-# unicode61 tokenizer then re-splits on whitespace, preserving the
-# implicit-AND semantic across multi-token queries (e.g. "Q3 5/05 launch notes"
-# becomes "Q3 5 05 launch notes", AND across tokens).
-_FTS5_SPECIAL_RE = re.compile(r'[()"*:/.\-+^&]+')
+# User text never reaches the FTS5 MATCH parser as syntax. The query is split
+# into word tokens, each token is wrapped in double quotes (so AND, OR, NOT,
+# NEAR, apostrophes, and punctuation are all plain text), and the tokens are
+# joined with OR or AND. `context` uses OR so a natural-language question still
+# finds the facts that share some of its words, ranked by bm25. `search` uses
+# AND so every word must match.
+_WORD_RE = re.compile(r"\w+", re.UNICODE)
+
+FtsMode = Literal["or", "and"]
 
 
-def _sanitize_fts_query(query: str | None) -> str | None:
-    """Replace FTS5-parser-special chars with spaces. Pass None through.
+def fts_match_query(query: str | None, mode: FtsMode = "or") -> str | None:
+    """Build a safe FTS5 MATCH string from free text.
 
-    Examples:
-      "Q3 5/05 launch notes" -> "Q3 5 05 launch notes"
-      "issue-1"              -> "issue 1"
-      "Apollo (Phase II)"    -> "Apollo  Phase II "
+    Returns None when `query` is None or holds no word characters, so the
+    caller can skip the MATCH entirely.
+
+    Examples (mode="or"):
+      "what's the flagship?" -> '"what" OR "s" OR "the" OR "flagship"'
+      "Q3 5/05 launch"       -> '"Q3" OR "5" OR "05" OR "launch"'
+      "AND"                  -> '"AND"'
     """
     if query is None:
         return None
-    return _FTS5_SPECIAL_RE.sub(" ", query)
+    if mode not in ("or", "and"):
+        raise ValueError(f"fts_match_query: mode must be 'or' or 'and', got {mode!r}")
+    tokens = _WORD_RE.findall(query)
+    if not tokens:
+        return None
+    joiner = " OR " if mode == "or" else " AND "
+    return joiner.join(f'"{t}"' for t in tokens)
 
 
 # Category sort order within structural.
@@ -180,6 +192,7 @@ def retrieve_operational(conn: sqlite3.Connection,
                          opts: ContextOptions) -> list[Hit]:
     """Recent + relevant facts and episodes within opts.operational_days."""
     hits: list[Hit] = []
+    match = fts_match_query(opts.query, "or")
 
     # === Facts ===
     fact_where: list[str] = ["facts.retracted = 0",
@@ -196,14 +209,14 @@ def retrieve_operational(conn: sqlite3.Connection,
     fact_where.extend("facts." + p for p in subj_parts)
     fact_params.extend(subj_params)
 
-    if opts.query:
+    if match:
         sql = (
             "SELECT facts.*, bm25(facts_fts) AS _bm25_score "
             "FROM facts JOIN facts_fts ON facts.id = facts_fts.rowid "
             "WHERE facts_fts MATCH ? AND " + " AND ".join(fact_where) +
             " ORDER BY _bm25_score ASC, facts.id DESC LIMIT ?"
         )
-        params = [_sanitize_fts_query(opts.query)] + fact_params + [opts.limit]
+        params = [match] + fact_params + [opts.limit]
     else:
         sql = (
             "SELECT facts.*, NULL AS _bm25_score FROM facts "
@@ -228,7 +241,7 @@ def retrieve_operational(conn: sqlite3.Connection,
     ]
     ep_params: list[Any] = []
 
-    if opts.query:
+    if match:
         sql = (
             "SELECT episodes.*, bm25(episodes_fts) AS _bm25_score "
             "FROM episodes JOIN episodes_fts "
@@ -236,7 +249,7 @@ def retrieve_operational(conn: sqlite3.Connection,
             "WHERE episodes_fts MATCH ? AND " + " AND ".join(ep_where) +
             " ORDER BY _bm25_score ASC, episodes.id DESC LIMIT ?"
         )
-        params = [_sanitize_fts_query(opts.query)] + ep_params + [opts.limit]
+        params = [match] + ep_params + [opts.limit]
     else:
         sql = (
             "SELECT episodes.*, NULL AS _bm25_score FROM episodes "
@@ -257,7 +270,7 @@ def retrieve_operational(conn: sqlite3.Connection,
     # When no query: sort by canonical date DESC (tx_from for facts,
     # occurred_at for episodes), id DESC as tiebreaker. Score is uniformly 1.0
     # in the no-query case so it's not part of the sort key.
-    if opts.query:
+    if match:
         hits.sort(key=lambda h: (-h.score, -h.id))
     else:
         hits.sort(key=lambda h: (_canonical_date_key(h), h.id), reverse=True)
@@ -289,6 +302,7 @@ def retrieve_structural(conn: sqlite3.Connection,
         "facts.confidence >= ?",
     ]
     params: list[Any] = list(PINNED_CATEGORIES) + [opts.structural_confidence]
+    match = fts_match_query(opts.query, "or")
 
     as_of_clause, as_of_params = _as_of_facts_clause(opts)
     where.append(as_of_clause.replace("tx_from", "facts.tx_from")
@@ -299,7 +313,7 @@ def retrieve_structural(conn: sqlite3.Connection,
     where.extend("facts." + p for p in subj_parts)
     params.extend(subj_params)
 
-    if opts.query:
+    if match:
         # Relevance ranking: bm25 is the within-category tiebreak so the row
         # whose body actually carries the query terms outranks siblings. Category
         # stays primary; confidence and id remain further tiebreaks.
@@ -311,7 +325,7 @@ def retrieve_structural(conn: sqlite3.Connection,
             f" ORDER BY {_STRUCTURAL_CATEGORY_RANK_SQL}, "
             f"_bm25_score ASC, facts.confidence DESC, facts.id DESC LIMIT ?"
         )
-        full_params = [_sanitize_fts_query(opts.query)] + params + [opts.limit]
+        full_params = [match] + params + [opts.limit]
     else:
         sql = (
             "SELECT * FROM facts WHERE " + " AND ".join(where) +
@@ -334,13 +348,14 @@ def retrieve_structural(conn: sqlite3.Connection,
 def retrieve_reflective(conn: sqlite3.Connection,
                         opts: ContextOptions) -> list[Hit]:
     """Episodes weighted by half-life decay."""
-    if opts.query:
+    match = fts_match_query(opts.query, "or")
+    if match:
         sql = (
             "SELECT episodes.* FROM episodes JOIN episodes_fts "
             "ON episodes.id = episodes_fts.rowid "
             "WHERE episodes_fts MATCH ?"
         )
-        params = [_sanitize_fts_query(opts.query)]
+        params = [match]
     else:
         sql = "SELECT * FROM episodes"
         params = []
