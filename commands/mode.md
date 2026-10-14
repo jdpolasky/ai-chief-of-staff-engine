@@ -60,7 +60,7 @@ was asked, and erases the boundary that made the mode worth having.
 ## Note on enforcement
 
 A contract is prose you hold, and prose can slip on a long session. The parts that can
-be mechanized should be: the protect-surfaces hook already blocks edits to the owner's
-files no matter which mode you think you are in (see `docs/ENFORCEMENT.md`). Treat the
-hook as the floor and the contract as the intent above it. Where they overlap, the hook
-wins, because it cannot be talked around.
+be mechanized should be: the protect-surfaces hook blocks Edit, Write, and NotebookEdit
+on the owner's protected files no matter which mode you think you are in (see
+`docs/ENFORCEMENT.md`). A shell command can still write those files, so keep the
+Must-never list in every contract.
