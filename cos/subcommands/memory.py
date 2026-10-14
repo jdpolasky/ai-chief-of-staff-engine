@@ -26,7 +26,7 @@ from cos.braid import REJECTIONS_LOG
 from cos.braid.validate import validate_braid, BraidRejection
 from cos.memory import DEFAULT_DB_PATH
 from cos.memory.context import (
-    ContextOptions, TIER_ORDER, Tier,
+    ContextOptions, TIER_ORDER, Tier, fts_match_query,
     format_human_merged, format_human_section,
     hit_to_record, merge_hits, retrieve_context,
 )
@@ -183,13 +183,20 @@ def cmd_search(args: argparse.Namespace) -> int:
 
     Output: JSONL on stdout. Each record carries a `kind` field ('fact' or
     'episode') plus the underlying row. Default scope: both indices. Default
-    filter: retracted=0 for facts.
+    filter: retracted=0 for facts. The query is free text: it is split into
+    words and every word must match.
     """
     _ensure_utf8_stdout()
     db_path = Path(args.db) if args.db else DEFAULT_DB_PATH
     if not db_path.exists():
         print(f"cos memory search: memory.db not found at {db_path}", file=sys.stderr)
         return 2
+
+    # Every word must match (AND). Quoting each word keeps apostrophes,
+    # punctuation, and the words AND/OR/NOT from reaching FTS5 as syntax.
+    match = fts_match_query(args.query, "and")
+    if match is None:
+        return 0  # no words to search for; empty result
 
     conn = sqlite3.connect(db_path)
     try:
@@ -201,7 +208,7 @@ def cmd_search(args: argparse.Namespace) -> int:
                 "SELECT facts.* FROM facts JOIN facts_fts "
                 "ON facts.id = facts_fts.rowid "
                 "WHERE facts_fts MATCH ? AND facts.retracted = 0",
-                (args.query,),
+                (match,),
             )
             for row in cur.fetchall():
                 rec = _row_to_dict(cur, row)
@@ -213,7 +220,7 @@ def cmd_search(args: argparse.Namespace) -> int:
                 "SELECT episodes.* FROM episodes JOIN episodes_fts "
                 "ON episodes.id = episodes_fts.rowid "
                 "WHERE episodes_fts MATCH ?",
-                (args.query,),
+                (match,),
             )
             for row in cur.fetchall():
                 rec = _row_to_dict(cur, row)
@@ -410,7 +417,7 @@ def register(subparsers):
         "search",
         help="FTS5 search across facts and episodes. JSONL on stdout.",
     )
-    p_search.add_argument("query", help="FTS5 MATCH query string")
+    p_search.add_argument("query", help="free-text query; every word must match")
     p_search.add_argument("--kind", choices=["fact", "episode"], default=None,
                           help="restrict to one kind (default: both)")
     p_search.add_argument("--db", default=None,
@@ -436,7 +443,8 @@ def register(subparsers):
     p_ctx.add_argument("--subject-type", dest="subject_type", default=None,
                        help="optional subject_type narrowing (with or without subject)")
     p_ctx.add_argument("--query", default=None,
-                       help="optional FTS5 MATCH query applied to operational + reflective")
+                       help="optional free-text query; facts and episodes sharing any of "
+                            "its words are ranked by relevance")
     p_ctx.add_argument("--tiers", default=None,
                        help="comma-separated tier selection (default: all three)")
     p_ctx.add_argument("--limit", type=int, default=10,
