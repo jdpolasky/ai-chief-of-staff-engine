@@ -37,10 +37,9 @@ whether the work is good, only how much of it there has been.
 **output_lint** (runs when the assistant tries to end its turn). This reads the
 assistant's final message and checks it against regex rules you turn on. If a rule
 matches, the stop is blocked and the assistant has to rewrite before it hands the
-turn back. It ships with three example rules (ban the em-dash, flag a suspiciously
-long quote, flag three hedging words stacked in one sentence); all but the
-first are off by default. It is a last-line style check, not a content
-judge.
+turn back. It ships with three example rules (flag an em-dash, flag a suspiciously
+long quote, flag three hedging words stacked in one sentence), all three off by
+default. It is a last-line style check, not a content judge.
 
 ## The fail-open philosophy, and its tradeoff
 
@@ -172,9 +171,8 @@ Two checks, both worth doing after you wire the hooks in.
 
 ## Default posture
 
-Nothing here runs until you add it to your `settings.json`, and the lint
-rules beyond the em-dash arrive turned off. Turn on
-what you actually need. The protect hook is worth it the moment you have a file
+Nothing here runs until you add it to your `settings.json`, and every lint
+rule arrives turned off. Turn on what you actually need. The protect hook is worth it the moment you have a file
 you never want auto-edited; the governor is worth it the first time a session runs
 away from you; the lint is worth it when you have a style line you keep having to
 repeat. Start with one, prove it, add the next.

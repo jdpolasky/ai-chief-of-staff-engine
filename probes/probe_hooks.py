@@ -27,6 +27,8 @@ Claude Code drives them) and asserts every branch:
     - no-match allows
     - stop_hook_active short-circuits to allow
     - malformed config fails open (allow)
+    - the shipped lint_rules.json parses, every pattern compiles, every rule
+      ships disabled, and an em-dash passes under the shipped config
 
 Each hook is copied into a sandbox with its own config so the probe never
 touches the shipped config files. Exits 0 on pass; nonzero with a printed FAIL
@@ -324,6 +326,30 @@ def probe_lint(sandbox: Path) -> None:
           "lint malformed config: should fail open (allow)")
 
 
+def probe_shipped_lint_config(sandbox: Path) -> None:
+    """The shipped lint config is valid and ships with every rule off."""
+    import re
+    shipped = HOOKS_DIR / "config" / "lint_rules.json"
+    cfg = json.loads(shipped.read_text(encoding="utf-8"))
+    rules = cfg.get("rules", [])
+    check(rules, "shipped lint config: no rules")
+    for rule in rules:
+        try:
+            re.compile(rule["pattern"])
+        except re.error as e:
+            raise ProbeFail(f"shipped lint rule {rule.get('name')!r}: bad regex: {e}")
+        check(rule.get("enabled") is False,
+              f"shipped lint rule {rule.get('name')!r} ships enabled")
+
+    shutil.copy2(shipped, sandbox / "config" / "lint_rules.json")
+    tx = sandbox / "transcript_shipped.jsonl"
+    write_transcript(tx, "The plan is clear — we ship today.")
+    res = run_hook(sandbox / "output_lint.py",
+                   {"transcript_path": str(tx), "stop_hook_active": False})
+    check(res["exit_code"] == 0 and stop_decision(res) != "block",
+          "shipped lint config: an em-dash should pass with every rule off")
+
+
 def main() -> int:
     for name in ("protect_surfaces.py", "effort_governor.py", "output_lint.py"):
         if not (HOOKS_DIR / name).exists():
@@ -341,6 +367,7 @@ def main() -> int:
         probe_protect(sandbox)
         probe_governor(sandbox)
         probe_lint(sandbox)
+        probe_shipped_lint_config(sandbox)
     except ProbeFail as e:
         print(f"FAIL: {e}")
         return 1
